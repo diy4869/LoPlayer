@@ -49,7 +49,7 @@ export default `
       </div>
       <div class="right">
         <!-- 音量控制 -->
-        <span class="volume icon iconfont"></span>
+        <span class="volumeBtn icon iconfont icon-yinliang"></span>
         <div class="volumeBox">
           <div class="progressLine">
             <div class="progress"></div>

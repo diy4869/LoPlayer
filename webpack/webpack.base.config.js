@@ -41,7 +41,7 @@ module.exports = {
               limit: 4096,
               quality: 50,
               name: '[name].[hash:8].[ext]',
-              outputPath: 'assets'
+              outputPath: 'assets/img'
             }
           }
         ]
@@ -49,7 +49,11 @@ module.exports = {
       {
         test: /\.(eot|ttf|woff|woff2|svg)/,
         use: [{
-          loader: 'file-loader'
+          loader: 'file-loader',
+          options: {
+            name: '[name].[hash:8].[ext]',
+            outputPath: 'assets/fonts'
+          }
         }]
       },
       {
@@ -74,7 +78,7 @@ module.exports = {
       'process.env': JSON.stringify(env)
     }),
     new MiniCssExtractPlugin({
-      filename: '[name].[contentHash:8].css',
+      filename: 'assets/css/[name].[contentHash:8].css',
       chunkFilename: 'css/[id].css'
     })
   ]
