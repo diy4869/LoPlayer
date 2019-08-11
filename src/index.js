@@ -24,7 +24,7 @@ class LoPlayer {
       container.innerHTML = TEMPLATE
       const { player } = this.getEl()
       this.player = player
-      this.player.src = this.options.src[1].src
+      this.player.src = this.options.src[0].src
       this.bindEvent()
       this.canplay()
       this.volumeChangeIcon()
