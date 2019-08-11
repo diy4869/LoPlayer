@@ -1,0 +1,209 @@
+$primaryColor: white;
+#player {
+  width: 889px;
+  height: 500px;
+  border: 2px solid red;
+}
+.player:hover .controlBox {
+  opacity: 1;
+}
+.playerBox{
+  width: 100%;
+  height: 100%;
+  position: relative;
+  top: 0;
+  box-sizing: border-box;
+  user-select: none;
+  .loading, .playStatus {
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, .5);
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    .icon {
+      font-size: 60px;
+      color: white;
+    }
+    .icon-loading {
+      animation: loading 1.5s linear infinite;
+      display: inline-block;
+    }
+    // .icon-video1 {
+    //   color: #409EFF;
+    // }
+    @keyframes loading {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  }
+  video {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0px;
+  }
+  .controlBox {
+    width: 100%;
+    height: 60px;
+    background: rgba(0, 0, 0, .5);
+    position: absolute;
+    bottom: 0px;
+    color: white;
+    box-sizing: border-box;
+    padding: 0px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    // opacity: 0;
+    span {
+      vertical-align: middle;
+    }
+    .icon {
+      font-size: 20px;
+      margin: 0 10px;
+    }
+    .play {
+      .icon {
+        margin: 0 5px;
+      }
+    }
+    .icon-tingzhi {
+      font-size: 24px;
+    }
+    .icon-kongzhi {
+      font-size: 24px;
+    }
+    .icon-caret-right {
+      font-size: 28px;
+    }
+    .icon-caret-right, .icon-tingzhi {
+      width: 30px;
+      text-align: center;
+      display: inline-block;
+    }
+    .fullscreen {
+      font-size: 28px;
+    }
+    .progressBox {
+      width: 100%;
+      height: 5px;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    .progressLine {
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, .5);
+      .progress {
+        width: 0%;
+        height: 100%;
+        background: #409EFF;
+        position: absolute;
+        top: 0px;
+        left: 0%;
+        z-index: 1;
+      }
+      .preload {
+        width: 0%;
+        height: 100%;
+        background: white;
+        position: absolute;
+        top: 0px;
+        left: 0%;
+      }
+    }
+    .progressBar {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: $primaryColor;
+      position: absolute;
+      top: -4px;
+      left: 0%;
+      z-index: 1;
+      border: 2px solid #409EFF;
+    }
+    .volume {
+      margin-right: 10px;
+    }
+    .volumeBox {
+      width: 120px;
+      height: 5px;
+      margin-right: 20px;
+      position: relative;
+      .progressLine {
+        border-radius: 5px;
+        overflow: hidden;
+      }
+      .progress {
+        width: 50%;
+      }
+      .progressBar {
+        left: 50%;
+      }
+    }
+    .play {
+      margin-right: 20px;
+    }
+    .duration {
+      span {
+        &:nth-of-type(2) {
+          margin: 0 5px;
+        }
+      }
+    }
+    .left, .right {
+      display: flex;
+      align-items: center;
+    }
+  }
+  .controls {
+    width: 200px;
+    padding: 10px;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    position: absolute;
+    bottom: 120%;
+    left: 80%;
+    // border: 2px solid red;
+    font-size: 14px;
+    li {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      &:nth-child(2) {
+        .content {
+          display: flex;
+          flex: 1;
+          flex-wrap: wrap;
+        }
+      }
+    }
+    .playMode {
+      color: white;
+      width: 78px;
+      padding: 5px;
+      background: #409EFF;
+      margin-right: 10px;
+      margin-top: 10px;
+      border-radius: 5px;
+      text-align: center;
+    }
+  }
+  @media screen and (min-width: 1800px){
+    .controlBox {
+      height: 7%;
+    }
+  }
+}
