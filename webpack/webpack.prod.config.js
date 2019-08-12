@@ -1,4 +1,3 @@
-const webpack = require('webpack')
 // const path = require('path')
 // const glob = require('glob')
 const env = require('./env')
@@ -54,7 +53,7 @@ const prodConfig = merge(webpackBaseConfig, {
     new OptimizationCssAssetsPlugin({
       assetNameRegExp: /\.css$/g,
       cssProcessor: require('cssnano')
-    }),
+    })
     // 去掉没用的css
     // new PurgecssPlugin({
     //   paths: glob.sync(path.join(__dirname, 'src'))

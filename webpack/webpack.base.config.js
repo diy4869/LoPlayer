@@ -65,8 +65,8 @@ module.exports = {
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src'),
-      '~': path.resolve(__dirname, 'src/assets')
+      '@': path.join(__dirname, 'src'),
+      '~': path.join(__dirname, 'src/assets')
     },
     // false可以不带扩展
     enforceExtension: false,

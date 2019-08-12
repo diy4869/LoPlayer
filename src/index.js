@@ -2,7 +2,9 @@ import './assets/css/iconfont.css'
 import './assets/css/player.scss'
 import TEMPLATE from './template'
 import { Format } from './utils'
-
+import Hls from 'hls.js'
+import dashjs from 'dashjs'
+console.log(__dirname)
 class LoPlayer {
   constructor (el, options) {
     this.el = el
@@ -13,6 +15,7 @@ class LoPlayer {
     this.currentTime = '00:00:00'
     this.duration = '00:00:00'
     this.volumeIcon = ''
+    this.currentIndex = 2
     this.init()
   }
 
@@ -24,7 +27,6 @@ class LoPlayer {
       container.innerHTML = TEMPLATE
       const { player } = this.getEl()
       this.player = player
-      this.player.src = this.options.src[0].src
       this.bindEvent()
       this.canplay()
       this.volumeChangeIcon()
@@ -36,6 +38,39 @@ class LoPlayer {
       this.mouseUp()
       this.volume()
       this.volumeMove()
+      this.stream()
+    }
+  }
+
+  stream () {
+    console.log(this.options.src[this.currentIndex].type)
+    switch (this.options.src[this.currentIndex].type) {
+      case 'hls':
+        if (Hls.isSupported()) {
+          var hls = new Hls()
+          hls.loadSource(this.options.src[this.currentIndex].src)
+          hls.attachMedia(this.player)
+          console.log(hls)
+          hls.on(Hls.Events.MANIFEST_PARSED, () => {
+            this.player.pause()
+          })
+        } else if (this.player.canPlayType('application/vnd.apple.mpegurl')) {
+          this.player.src = this.options.src[this.currentIndex].src
+          this.player.addEventListener('loadedmetadata', () => {
+            this.player.pause()
+          })
+        }
+        break
+      case 'dash':
+        console.log(6)
+        console.log(this.options.src[this.currentIndex].src)
+        const player = dashjs.MediaPlayer().create()
+        player.initialize(this.player, this.options.src[this.currentIndex].src, false)
+        console.log(player)
+        break
+      default:
+        this.player.src = this.options.src[this.currentIndex].src
+        break
     }
   }
 
@@ -305,6 +340,18 @@ class LoPlayer {
 
 const player = new LoPlayer('#player', {
   src: [{
+    src: 'http://7xlv47.com1.z0.glb.clouddn.com/4k.mp4',
+    type: 'video/mp4'
+  },
+  {
+    src: 'http://7xlv47.com1.z0.glb.clouddn.com/xxx004.m3u8',
+    type: 'hls'
+  },
+  {
+    src: 'https://dash.akamaized.net/envivio/EnvivioDash3/manifest.mpd',
+    type: 'dash'
+  },
+  {
     src: 'http://bangumi.xyz/video.mp4',
     type: 'video/mp4'
   },
