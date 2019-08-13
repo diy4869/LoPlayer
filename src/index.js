@@ -16,7 +16,7 @@ class LoPlayer {
     this.currentTime = '00:00:00'
     this.duration = '00:00:00'
     this.volumeIcon = ''
-    this.currentIndex = 0
+    this.currentIndex = 4
     this.init()
   }
 
