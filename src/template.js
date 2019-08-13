@@ -1,6 +1,8 @@
 export default `
   <div class="playerBox">
-    <video preload="auto" id="video"></video>
+    <video preload="auto" id="video">
+      <source src="" type="">
+    </video>
     <div class="controlBox">
     <!-- 
       <ul class="controls" v-show="showSetting">
@@ -36,9 +38,9 @@ export default `
       <div class="left">
         <!-- 播放按钮 -->
         <div class="play">
-          <span class="icon iconfont icon-step-backward"></span>
+          <span class="icon iconfont icon-step-backward prevBtn"></span>
           <span class="icon iconfont icon-caret-right" id="play"></span>
-          <span class="icon iconfont icon-step-forward"></span>
+          <span class="icon iconfont icon-step-forward nextBtn"></span>
         </div>
         <!-- 时间显示 -->
         <div class="duration">
@@ -56,6 +58,7 @@ export default `
           </div>
           <div class="progressBar"></div>
         </div>
+        <span class="icon iconfont icon-camera1"></span>
         <!-- 设置部分 -->
         <span class="icon iconfont icon-kongzhi"></span>
         <!-- 全屏 -->

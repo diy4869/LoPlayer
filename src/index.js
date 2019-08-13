@@ -4,7 +4,8 @@ import TEMPLATE from './template'
 import { Format } from './utils'
 import Hls from 'hls.js'
 import dashjs from 'dashjs'
-console.log(__dirname)
+import './canvas.js'
+
 class LoPlayer {
   constructor (el, options) {
     this.el = el
@@ -15,7 +16,7 @@ class LoPlayer {
     this.currentTime = '00:00:00'
     this.duration = '00:00:00'
     this.volumeIcon = ''
-    this.currentIndex = 2
+    this.currentIndex = 0
     this.init()
   }
 
@@ -39,25 +40,54 @@ class LoPlayer {
       this.volume()
       this.volumeMove()
       this.stream()
+      this.prev()
+      this.next()
+      this.durationChange()
+      console.log(this.player)
     }
   }
 
+  error () {
+    this.player.addEventListener('error', () => {
+      console.log()
+      /*
+      readyState表示音频/视频元素的就绪状态：
+        0 = HAVE_NOTHING - 没有关于音频/视频是否就绪的信息
+        1 = HAVE_METADATA - 关于音频/视频就绪的元数据
+        2 = HAVE_CURRENT_DATA - 关于当前播放位置的数据是可用的，但没有足够的数据来播放下一帧/毫秒
+        3 = HAVE_FUTURE_DATA - 当前及至少下一帧的数据是可用的
+        4 = HAVE_ENOUGH_DATA - 可用数据足以开始播放
+      video.error：
+        MEDIA_ERR_ABORTED(数字值为1)，媒体数据的下载过程由于用户的操作原因而被终止。
+        MEDIA_ERR_NETWORK(数字值为2)，确认媒体资源可用，但是在下载出现网络错误，媒体数据的下载过程被中止。
+        MEDIA_ERR_DECODE(数字值为3)，确认媒体资源可用，但是解码时发生错误。
+        MEDIA_ERR_SRC_NOT_SUPPORTED(数字值为4)，媒体资源不可用或媒体格式不被支持。
+
+      video.networkState：
+        NETWORK_EMPTY（数字值为0）：元素处于初始状态。
+        NETWORK_IDLE(数字值为1)，浏览器已选择好用什么编码格式来播放媒体，但是尚未建立网络连接。
+        NETWORK_LOADING(数字值为2)：媒体数据加载中
+        NETWORK_NO_SOURCE(数字值为3)，没有支持的编码格式，不执行加载。
+    */
+    })
+  }
+
   stream () {
-    console.log(this.options.src[this.currentIndex].type)
+    const { source } = this.getEl()
     switch (this.options.src[this.currentIndex].type) {
       case 'hls':
         if (Hls.isSupported()) {
-          var hls = new Hls()
+          const hls = new Hls()
           hls.loadSource(this.options.src[this.currentIndex].src)
           hls.attachMedia(this.player)
           console.log(hls)
           hls.on(Hls.Events.MANIFEST_PARSED, () => {
-            this.player.pause()
+            this.play()
           })
         } else if (this.player.canPlayType('application/vnd.apple.mpegurl')) {
-          this.player.src = this.options.src[this.currentIndex].src
+          source.src = this.options.src[this.currentIndex].src
           this.player.addEventListener('loadedmetadata', () => {
-            this.player.pause()
+            this.play()
           })
         }
         break
@@ -65,20 +95,24 @@ class LoPlayer {
         console.log(6)
         console.log(this.options.src[this.currentIndex].src)
         const player = dashjs.MediaPlayer().create()
-        player.initialize(this.player, this.options.src[this.currentIndex].src, false)
+        player.initialize(this.player, this.options.src[this.currentIndex].src, true)
         console.log(player)
         break
       default:
-        this.player.src = this.options.src[this.currentIndex].src
+        console.log('未知')
         break
     }
   }
 
   getEl () {
+    console.log(document.querySelectorAll('#video source'))
     return {
       playerBox: document.querySelectorAll('.playerBox')[0],
+      prevBtn: document.querySelectorAll('.prevBtn')[0],
+      nextBtn: document.querySelectorAll('.nextBtn')[0],
       playBtn: document.querySelectorAll('#play')[0],
       player: document.querySelectorAll('#video')[0],
+      source: document.querySelectorAll('#video source')[0],
       currentTime: document.querySelectorAll('.duration span:nth-of-type(1)')[0],
       duration: document.querySelectorAll('.duration span:nth-of-type(3)')[0],
       controlBox: document.querySelectorAll('.controlBox')[0],
@@ -100,7 +134,7 @@ class LoPlayer {
   bindEvent () {
     const { playBtn, volumeBtn, fullScreen } = this.getEl()
     playBtn.addEventListener('click', () => {
-      this.play()
+      this.toggle()
     })
     volumeBtn.addEventListener('click', () => {
       this.muted()
@@ -123,7 +157,7 @@ class LoPlayer {
           this.options.fullScreen = false
           break
         case 32:
-          this.play()
+          this.toggle()
           break
         case 70:
           this.fullScreen()
@@ -139,11 +173,15 @@ class LoPlayer {
   }
 
   preload () {
+    console.log(this.player.buffered)
     const len = this.player.buffered.length - 1
+    console.log(len)
     const { videoProgressLine, preload } = this.getEl()
-    const end = this.player.buffered.end(len)
-    const position = (end / this.player.duration) * videoProgressLine.offsetWidth
-    preload.style.width = position.toFixed(2) + 'px'
+    if (len >= 0) {
+      const end = this.player.buffered.end(len)
+      const position = (end / this.player.duration) * videoProgressLine.offsetWidth
+      preload.style.width = position.toFixed(2) + 'px'
+    }
   }
 
   canplay () {
@@ -154,18 +192,67 @@ class LoPlayer {
     })
   }
 
+  toggle () {
+    this.playStatus = !this.playStatus
+    this.playStatus ? this.play() : this.pause()
+  }
+
   play () {
     const { playBtn } = this.getEl()
-    console.log(this)
-    if (this.player.paused) {
-      this.playStatus = true
-      this.player.play()
-      playBtn.className = 'icon iconfont icon-tingzhi'
-    } else {
-      this.playStatus = false
-      this.player.pause()
-      playBtn.className = 'icon iconfont icon-caret-right'
-    }
+
+    this.playStatus = true
+    this.player.play()
+    playBtn.className = 'icon iconfont icon-tingzhi'
+  }
+
+  pause () {
+    const { playBtn } = this.getEl()
+    this.playStatus = false
+    this.player.pause()
+    playBtn.className = 'icon iconfont icon-caret-right'
+  }
+
+  prev () {
+    const { prevBtn } = this.getEl()
+    prevBtn.addEventListener('click', () => {
+      console.log('prev')
+      if (this.currentIndex > 0) {
+        this.currentIndex--
+        this.durationChange()
+      }
+    })
+  }
+
+  next () {
+    const { nextBtn } = this.getEl()
+    nextBtn.addEventListener('click', () => {
+      console.log('next')
+      console.log(this.player)
+      if (this.currentIndex < this.options.src.length) {
+        console.log(this.currentIndex)
+        this.currentIndex++
+        this.durationChange()
+      }
+    })
+  }
+
+  durationChange () {
+    const { currentTime, preload, videoProgressBar, videoProgress, source } = this.getEl()
+    // this.player.load()
+    source.src = this.options.src[this.currentIndex].src
+    source.type = this.options.src[this.currentIndex].type
+    console.log('src：' + source.src)
+    this.pause()
+    this.stream()
+    console.log('错误信息' + this.player.error)
+    console.log('就绪状态' + this.player.readyState)
+    console.log('网络状态' + this.player.networkState)
+    // this.play()
+    this.currentTime = '00:00:00'
+    currentTime.innerHTML = this.currentTime
+    videoProgress.style.width = 0 + 'px'
+    videoProgressBar.style.left = 0 + 'px'
+    preload.style.width = 0 + 'px'
   }
 
   timeupdate () {
@@ -352,15 +439,11 @@ const player = new LoPlayer('#player', {
     type: 'dash'
   },
   {
-    src: 'http://bangumi.xyz/video.mp4',
-    type: 'video/mp4'
-  },
-  {
     src: 'https://api.dogecloud.com/player/get.mp4?vcode=5ac682e6f8231991&userId=17&ext=.mp4',
     type: 'video/mp4'
   },
   {
-    src: 'https://player.dogecloud.com/web/player.html?vcode=d87d57617666bc9b&userId=450&autoPlay=false&inFrame=true&vtype=10',
+    src: 'http://bangumi.xyz/video.mp4',
     type: 'video/mp4'
   }],
   autoplay: true,
