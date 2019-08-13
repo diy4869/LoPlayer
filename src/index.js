@@ -99,7 +99,9 @@ class LoPlayer {
         console.log(player)
         break
       default:
-        console.log('未知')
+        //console.log('未知')
+        this.player.load();
+        this.play();
         break
     }
   }
@@ -218,8 +220,10 @@ class LoPlayer {
       console.log('prev')
       if (this.currentIndex > 0) {
         this.currentIndex--
-        this.durationChange()
+      } else {
+        this.currentIndex = this.options.src.length - 1
       }
+      this.durationChange()
     })
   }
 
@@ -228,21 +232,24 @@ class LoPlayer {
     nextBtn.addEventListener('click', () => {
       console.log('next')
       console.log(this.player)
-      if (this.currentIndex < this.options.src.length) {
-        console.log(this.currentIndex)
+      if (this.currentIndex < this.options.src.length - 1) {
         this.currentIndex++
-        this.durationChange()
+      } else {
+        this.currentIndex = 0
       }
+      this.durationChange()
     })
   }
 
   durationChange () {
-    const { currentTime, preload, videoProgressBar, videoProgress, source } = this.getEl()
-    // this.player.load()
+    const { currentTime, preload, videoProgressBar, videoProgress, source: oldSource, player } = this.getEl()
+    this.pause()
+    player.removeChild(oldSource);
+    let source = document.createElement('source');
     source.src = this.options.src[this.currentIndex].src
     source.type = this.options.src[this.currentIndex].type
+    player.appendChild(source);
     console.log('src：' + source.src)
-    this.pause()
     this.stream()
     console.log('错误信息' + this.player.error)
     console.log('就绪状态' + this.player.readyState)
