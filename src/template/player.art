@@ -1,0 +1,53 @@
+<div class="playerBox">
+  <video preload="auto" id="video">
+    <source src='' type=''/>
+  </video>
+  <div class="controlBox">
+    <!-- 点击设置调整播放模式、播放速度 -->
+    <div class="progressBox">
+      <div class="progressLine">
+        <div class="progress"></div>
+        <div class="preload"></div>
+      </div>
+      <div class="progressBar"></div>
+    </div>
+    <div class="left">
+      <!-- 播放按钮 -->
+      <div class="play">
+        <span class="icon iconfont icon-step-backward prevBtn"></span>
+        <span class="icon iconfont icon-caret-right" id="play"></span>
+        <span class="icon iconfont icon-step-forward nextBtn"></span>
+      </div>
+      <!-- 时间显示 -->
+      <div class="duration">
+        <span>00:00:00</span>
+        <span>/</span>
+        <span>00:00:00</span>
+      </div>
+    </div>
+    <div class="right">
+      <!-- 音量控制 -->
+      <span class="volumeBtn icon iconfont icon-yinliang"></span>
+      <div class="volumeBox">
+        <div class="progressLine">
+          <div class="progress"></div>
+        </div>
+        <div class="progressBar"></div>
+      </div>
+      <span class="icon iconfont icon-camera1 screenshot"></span>
+      <!-- 设置部分 -->
+      <span class="icon iconfont icon-kongzhi"></span>
+      <!-- 全屏 -->
+      <span class="fullscreen icon iconfont icon-fullscreen"></span>
+    </div>
+  </div>
+  <!-- video加载部分 -->
+  <div class="loading" style="display:none;">
+    <span class="icon iconfont icon-loading"></span>
+  </div>
+  <!-- 暂停显示的部分 -->
+  <div class="playStatus" style="display:none;">
+    <span class="icon iconfont icon-video1"></span>
+  </div>
+</div>
+
