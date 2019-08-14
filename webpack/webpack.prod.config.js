@@ -7,6 +7,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const TerserPlugin = require('terser-webpack-plugin')
 const OptimizationCssAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 
 const prodConfig = merge(webpackBaseConfig, {
   optimization: {
@@ -41,6 +42,11 @@ const prodConfig = merge(webpackBaseConfig, {
     modules: false,
     source: false
   },
+  // 忽略掉hls.js、dashjs，不进行打包
+  externals: {
+    'hls.js': 'hls.js',
+    dashjs: 'dashjs'
+  },
   plugins: [
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
@@ -53,7 +59,8 @@ const prodConfig = merge(webpackBaseConfig, {
     new OptimizationCssAssetsPlugin({
       assetNameRegExp: /\.css$/g,
       cssProcessor: require('cssnano')
-    })
+    }),
+    new BundleAnalyzerPlugin()
     // 去掉没用的css
     // new PurgecssPlugin({
     //   paths: glob.sync(path.join(__dirname, 'src'))
