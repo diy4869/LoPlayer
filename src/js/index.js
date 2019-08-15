@@ -15,7 +15,7 @@ export default class LoPlayer {
     this.currentTime = '00:00:00'
     this.duration = '00:00:00'
     this.volumeIcon = ''
-    this.currentIndex = 4
+    this.currentIndex = 0
 
     this.getEl = new Template({
       el: document.querySelectorAll(this.el)[0],
@@ -259,7 +259,7 @@ export default class LoPlayer {
   timeupdate () {
     const { currentTime, videoProgressLine, videoProgressBar, videoProgress } = this.getEl
     this.player.addEventListener('timeupdate', () => {
-      this.preload()
+      // this.preload()
       this.currentTime = Format(this.player.currentTime)
       currentTime.innerHTML = this.currentTime
 

@@ -38,6 +38,8 @@
     "node-sass": "^4.12.0",
     "optimize-css-assets-webpack-plugin": "^5.0.3",
     "postcss-loader": "^3.0.0",
+    "purify-css": "^1.2.5",
+    "purifycss-webpack": "^0.7.0",
     "responsive-loader": "^1.2.0",
     "sass-loader": "^7.2.0",
     "terser-webpack-plugin": "^1.4.1",

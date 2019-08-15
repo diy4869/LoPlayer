@@ -1,5 +1,5 @@
-// const path = require('path')
-// const glob = require('glob')
+const path = require('path')
+const glob = require('glob')
 const env = require('./env')
 const merge = require('webpack-merge')
 const webpackBaseConfig = require('./webpack.base.config')
@@ -8,6 +8,7 @@ const TerserPlugin = require('terser-webpack-plugin')
 const OptimizationCssAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+const PurgecssPlugin = require('purifycss-webpack')
 
 const prodConfig = merge(webpackBaseConfig, {
   optimization: {
@@ -60,11 +61,11 @@ const prodConfig = merge(webpackBaseConfig, {
       assetNameRegExp: /\.css$/g,
       cssProcessor: require('cssnano')
     }),
-    new BundleAnalyzerPlugin()
+    new BundleAnalyzerPlugin(),
     // 去掉没用的css
-    // new PurgecssPlugin({
-    //   paths: glob.sync(path.join(__dirname, 'src'))
-    // }),
+    new PurgecssPlugin({
+      paths: glob.sync(path.join(__dirname, 'src/page'))
+    })
   ]
 })
 

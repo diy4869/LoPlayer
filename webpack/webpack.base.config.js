@@ -67,6 +67,7 @@ module.exports = {
       }
     ]
   },
+  devtool: env === 'development' ? 'source-map' : 'none',
   resolve: {
     alias: {
       '@': path.join(__dirname, 'src'),
