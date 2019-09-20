@@ -20,8 +20,11 @@ export default class LoPlayer {
     this.getEl = new Template({
       el: document.querySelectorAll(this.el)[0],
       options: this.options,
-      currentIndex: this.currentIndex
+      currentIndex: this.currentIndex,
+      loading: this.loading,
+      playStatus: this.playStatus
     })
+    console.log(this.getEl)
     this.init()
   }
 
@@ -187,6 +190,7 @@ export default class LoPlayer {
     this.player.addEventListener('canplay', () => {
       duration.innerHTML = Format(this.player.duration)
       this.preload()
+      this.loading = false
     })
   }
 
@@ -241,13 +245,13 @@ export default class LoPlayer {
   changeVideo () {
     const { currentTime, preload, videoProgressBar, videoProgress, source: oldSource, player } = this.getEl
     this.pause()
-    console.log(oldSource)
-    player.innerHTML = ''
+    player.removeChild(player.children[0])
     const source = document.createElement('source')
     source.src = this.options.src[this.currentIndex].src
     source.type = this.options.src[this.currentIndex].type
     player.appendChild(source)
     this.stream()
+    console.log(this.player)
     this.currentTime = '00:00:00'
     currentTime.innerHTML = this.currentTime
     videoProgress.style.width = 0 + 'px'
@@ -259,7 +263,7 @@ export default class LoPlayer {
   timeupdate () {
     const { currentTime, videoProgressLine, videoProgressBar, videoProgress } = this.getEl
     this.player.addEventListener('timeupdate', () => {
-      // this.preload()
+      this.preload()
       this.currentTime = Format(this.player.currentTime)
       currentTime.innerHTML = this.currentTime
 

@@ -1,3 +1,10 @@
+/*
+ * @Description: In User Settings Edit
+ * @Author: your name
+ * @Date: 2019-08-15 20:36:02
+ * @LastEditTime: 2019-09-04 19:49:58
+ * @LastEditors: Please set LastEditors
+ */
 import LoPlayer from './js/index'
 
 const player = new LoPlayer('#player', {

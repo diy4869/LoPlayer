@@ -9,6 +9,8 @@ const OptimizationCssAssetsPlugin = require('optimize-css-assets-webpack-plugin'
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const PurgecssPlugin = require('purifycss-webpack')
+const SpeedMeasurePlugin = require('speed-measure-webpack-plugin')
+const smp = new SpeedMeasurePlugin()
 
 const prodConfig = merge(webpackBaseConfig, {
   optimization: {
@@ -27,7 +29,7 @@ const prodConfig = merge(webpackBaseConfig, {
     },
     minimizer: [
       new TerserPlugin({
-        parallel: 4,
+        parallel: 8,
         sourceMap: env === 'development',
         terserOptions: {
           cache: true,
@@ -69,4 +71,4 @@ const prodConfig = merge(webpackBaseConfig, {
   ]
 })
 
-module.exports = prodConfig
+module.exports = smp.wrap(prodConfig)

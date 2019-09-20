@@ -47,7 +47,7 @@ module.exports = {
         ]
       },
       {
-        test: /\.(eot|ttf|woff|woff2|svg)/,
+        test: /\.(eot|ttf|woff|woff2)/,
         use: [{
           loader: 'file-loader',
           options: {
@@ -55,6 +55,10 @@ module.exports = {
             outputPath: 'assets/fonts'
           }
         }]
+      },
+      {
+        test: /\.svg$/,
+        loader: 'svg-inline-loader'
       },
       {
         test: /\.js$/,
@@ -83,8 +87,7 @@ module.exports = {
       'process.env': JSON.stringify(env)
     }),
     new MiniCssExtractPlugin({
-      filename: 'assets/css/[name].[contentHash:8].css',
-      chunkFilename: 'css/[id].css'
+      filename: 'assets/css/[name].[contentHash:8].css'
     })
   ]
 }

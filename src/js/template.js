@@ -1,11 +1,19 @@
+/*
+ * @Description: In User Settings Edit
+ * @Author: your name
+ * @Date: 2019-08-13 16:51:16
+ * @LastEditTime: 2019-09-04 20:34:46
+ * @LastEditors: Please set LastEditors
+ */
 import player from '../template/player.art'
 
-console.log(player)
 export default class Template {
-  constructor (el, options, currentIndex) {
+  constructor (el, options, currentIndex, loading, playStatus) {
     this.el = el
     this.options = options
     this.currentIndex = currentIndex
+    this.playStatus = false
+    this.loading = true
     this.init()
   }
 
@@ -14,8 +22,11 @@ export default class Template {
     console.log()
     this.el.el.innerHTML = player({
       options: this.options,
-      currentIndex: this.currentIndex
+      currentIndex: this.currentIndex,
+      loading: this.loading,
+      playStatus: this.playStatus
     })
+    console.log(this.el.el.innerHTML)
     this.playerBox = document.querySelectorAll('.playerBox')[0]
     this.prevBtn = document.querySelectorAll('.prevBtn')[0]
     this.nextBtn = document.querySelectorAll('.nextBtn')[0]
