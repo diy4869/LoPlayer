@@ -15,7 +15,7 @@
       <!-- 播放按钮 -->
       <div class="play">
         <span class="icon iconfont icon-step-backward prevBtn"></span>
-        <span class="icon iconfont icon-caret-right" id="play"></span>
+        <span class="icon iconfont icon-caret-right" id="play"></span>{{playStatus}}
         <span class="icon iconfont icon-step-forward nextBtn"></span>
       </div>
       <!-- 时间显示 -->
@@ -47,7 +47,7 @@
     <span class="icon iconfont icon-loading"></span>
   </div>
   {{/if}}
-  <div class="loading">
+  <div class="loading" style="display: none;">
     <span class="icon iconfont icon-loading"></span>
   </div>
   <!-- 暂停显示的部分 -->
@@ -55,4 +55,3 @@
     <span class="icon iconfont icon-video1"></span>
   </div>
 </div>
-

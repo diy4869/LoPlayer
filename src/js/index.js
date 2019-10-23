@@ -1,7 +1,7 @@
 import '../assets/css/iconfont.css'
 import '../assets/css/player.scss'
 import Template from './template'
-import { Format } from './utils'
+import { Format, reactive } from './utils'
 import Hls from 'hls.js'
 import dashjs from 'dashjs'
 
@@ -17,13 +17,15 @@ export default class LoPlayer {
     this.volumeIcon = ''
     this.currentIndex = 0
 
-    this.getEl = new Template({
+    const data = reactive({
       el: document.querySelectorAll(this.el)[0],
       options: this.options,
       currentIndex: this.currentIndex,
       loading: this.loading,
       playStatus: this.playStatus
     })
+    console.log(data)
+    this.getEl = new Template(data)
     console.log(this.getEl)
     this.init()
   }

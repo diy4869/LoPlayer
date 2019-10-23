@@ -11,3 +11,17 @@ export const Format = (time) => {
   const Minute = minute < 10 ? '0' + minute : minute
   return Hour + ':' + Minute + ':' + Second
 }
+export const reactive = (data) => {
+  /* eslint-disable no-new */
+  return new Proxy(data, {
+    get (target, property) {
+      console.log(target)
+      return target[property]
+    },
+    set (target, property, value) {
+      console.log('set到了属性变化：' + target[property], value)
+      target[property] = value
+      return target[property]
+    }
+  })
+}
