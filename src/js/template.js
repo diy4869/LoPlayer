@@ -4,12 +4,8 @@
  */
 import player from '../template/player.art'
 export default class Template {
-  constructor (el, options, currentIndex, loading, playStatus) {
+  constructor (el) {
     this.el = el
-    this.options = options
-    this.currentIndex = currentIndex
-    this.playStatus = false
-    this.loading = true
     this.init()
   }
 

@@ -15,12 +15,12 @@
       <!-- 播放按钮 -->
       <div class="play">
         <span class="icon iconfont icon-step-backward prevBtn"></span>
-        <span class="icon iconfont icon-caret-right" id="play"></span>{{playStatus}}
+        <span class="icon iconfont icon-caret-right" id="play"></span>
         <span class="icon iconfont icon-step-forward nextBtn"></span>
       </div>
       <!-- 时间显示 -->
       <div class="duration">
-        <span>00:00:00{{!loading}}</span>
+        <span>00:00:00</span>
         <span>/</span>
         <span>00:00:00</span>
       </div>
@@ -42,14 +42,15 @@
     </div>
   </div>
   <!-- video加载部分 -->
-  {{if loading}}
-  <div class="loading" style="display: none;">
-    <span class="icon iconfont icon-loading"></span>
-  </div>
-  {{/if}}
-  <div class="loading" style="display: none;">
-    <span class="icon iconfont icon-loading"></span>
-  </div>
+  // {{ if true }}
+  // <div class="loading" style="display: none;">
+  //   <span class="icon iconfont icon-loading"></span>
+  // </div>
+  // {{ /if }}
+  // <div class="loading">
+  //   <span class="icon iconfont icon-loading"></span>
+  // </div>
+  // {{/if}}
   <!-- 暂停显示的部分 -->
   <div class="playStatus" style="display:none;">
     <span class="icon iconfont icon-video1"></span>
