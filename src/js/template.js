@@ -1,10 +1,3 @@
-/*
- * @Description: In User Settings Edit
- * @Author: your name
- * @Date: 2019-08-13 16:51:16
- * @LastEditTime: 2019-09-04 20:34:46
- * @LastEditors: Please set LastEditors
- */
 import player from '../template/player.art'
 
 export default class Template {
@@ -18,15 +11,12 @@ export default class Template {
   }
 
   init () {
-    console.log(this.el.el)
-    console.log()
     this.el.el.innerHTML = player({
       options: this.options,
       currentIndex: this.currentIndex,
       loading: this.loading,
       playStatus: this.playStatus
     })
-    console.log(this.el.el.innerHTML)
     this.playerBox = document.querySelectorAll('.playerBox')[0]
     this.prevBtn = document.querySelectorAll('.prevBtn')[0]
     this.nextBtn = document.querySelectorAll('.nextBtn')[0]

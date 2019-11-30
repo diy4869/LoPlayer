@@ -42,12 +42,12 @@
     </div>
   </div>
   <!-- video加载部分 -->
-  {{if loading}}
+  // {{if loading}}
   <div class="loading" style="display: none;">
     <span class="icon iconfont icon-loading"></span>
   </div>
-  {{/if}}
-  <div class="loading">
+  // {{/if}}
+  <div class="loading" style="display: none;">
     <span class="icon iconfont icon-loading"></span>
   </div>
   <!-- 暂停显示的部分 -->

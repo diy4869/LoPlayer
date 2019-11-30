@@ -24,7 +24,6 @@ export default class LoPlayer {
       loading: this.loading,
       playStatus: this.playStatus
     })
-    console.log(this.getEl)
     this.init()
   }
 
@@ -98,8 +97,10 @@ export default class LoPlayer {
 
   stream () {
     const { source } = this.getEl
+    this.player.load()
     switch (this.options.src[this.currentIndex].type) {
       case 'hls':
+        console.log('hls')
         if (Hls) {
           if (Hls.isSupported()) {
             const hls = new Hls()
@@ -109,22 +110,25 @@ export default class LoPlayer {
             hls.on(Hls.Events.MANIFEST_PARSED, () => {
               this.play()
             })
+            hls.on(Hls.Events.BUFFER_RESET, () => {
+              console.log('test')
+            })
           } else if (this.player.canPlayType('application/vnd.apple.mpegurl')) {
             source.src = this.options.src[this.currentIndex].src
-            this.player.addEventListener('loadedmetadata', () => {
+            this.player.addEventListener('canplay', () => {
               this.play()
             })
           }
         }
         break
       case 'dash':
+        console.log('dash')
         if (dashjs) {
           const player = dashjs.MediaPlayer().create()
           player.initialize(this.player, this.options.src[this.currentIndex].src, true)
         }
         break
       default:
-        this.player.load()
         source.src = this.options.src[this.currentIndex].src
         source.type = this.options.src[this.currentIndex].type
         break
@@ -175,6 +179,15 @@ export default class LoPlayer {
   // 缓存
   preload () {
     console.log(this.player.buffered)
+    setTimeout(() => {
+      const { videoProgressLine, preload } = this.getEl
+      const len = this.player.buffered.length - 1
+      if (len >= 0 && len < 2) {
+        const end = this.player.buffered.end(0.1)
+        const position = (end / this.player.duration) * videoProgressLine.offsetWidth
+        preload.style.width = position.toFixed(2) + 'px'
+      }
+    }, 0)
     const { videoProgressLine, preload } = this.getEl
     const len = this.player.buffered.length - 1
     if (len >= 0 && len < 2) {
@@ -243,9 +256,9 @@ export default class LoPlayer {
   }
 
   changeVideo () {
-    const { currentTime, preload, videoProgressBar, videoProgress, source: oldSource, player } = this.getEl
+    const { currentTime, preload, videoProgressBar, videoProgress, player } = this.getEl
     this.pause()
-    player.removeChild(player.children[0])
+    this.player.innerHTML = ''
     const source = document.createElement('source')
     source.src = this.options.src[this.currentIndex].src
     source.type = this.options.src[this.currentIndex].type
@@ -258,6 +271,8 @@ export default class LoPlayer {
     videoProgressBar.style.left = 0 + 'px'
     preload.style.width = 0 + 'px'
     this.play()
+    // eslint-disable-next-line no-debugger
+    // debugger
   }
 
   timeupdate () {
