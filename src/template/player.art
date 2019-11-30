@@ -20,7 +20,7 @@
       </div>
       <!-- 时间显示 -->
       <div class="duration">
-        <span>00:00:00{{!loading}}</span>
+        <span>00:00:00</span>
         <span>/</span>
         <span>00:00:00</span>
       </div>
@@ -55,4 +55,3 @@
     <span class="icon iconfont icon-video1"></span>
   </div>
 </div>
-

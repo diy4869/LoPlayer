@@ -3,6 +3,8 @@ const env = require('./env')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const webpack = require('webpack')
 
+console.log(__dirname)
+console.log(path.join(__dirname, '../src'))
 module.exports = {
   mode: env,
   entry: {
@@ -74,8 +76,8 @@ module.exports = {
   devtool: env === 'development' ? 'source-map' : 'none',
   resolve: {
     alias: {
-      '@': path.join(__dirname, 'src'),
-      '~': path.join(__dirname, 'src/assets')
+      '@': path.join(__dirname, '../src'),
+      '~': path.join(__dirname, '../src/assets')
     },
     // false可以不带扩展
     enforceExtension: false,

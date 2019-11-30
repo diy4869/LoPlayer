@@ -1,7 +1,11 @@
-import '../assets/css/iconfont.css'
-import '../assets/css/player.scss'
-import Template from './template'
-import { Format } from './utils'
+/**
+ * @author last order
+ * @description LoPlayer
+ */
+import '~/css/iconfont.css'
+import '~/css/player.scss'
+import Template from '@/js/template'
+import { Format, reactive } from '@/js/utils'
 import Hls from 'hls.js'
 import dashjs from 'dashjs'
 
@@ -10,19 +14,19 @@ export default class LoPlayer {
     this.el = el
     this.options = options
     this.playStatus = false
-    this.loading = true
+    this.loading = false
     this.player = undefined
     this.currentTime = '00:00:00'
     this.duration = '00:00:00'
     this.volumeIcon = ''
     this.currentIndex = 0
 
+    const data = reactive(this)
+    data.playStatus = true
+    this.playStatus = true
+    console.log(data)
     this.getEl = new Template({
-      el: document.querySelectorAll(this.el)[0],
-      options: this.options,
-      currentIndex: this.currentIndex,
-      loading: this.loading,
-      playStatus: this.playStatus
+      el: document.querySelectorAll(this.el)[0]
     })
     this.init()
   }
@@ -34,7 +38,7 @@ export default class LoPlayer {
       const { player } = this.getEl
       this.player = player
       this.bindEvent()
-      this.stream()
+      this.mediaSourceExtensions()
       this.canplay()
       this.volumeChangeIcon()
       this.timeupdate()
@@ -95,7 +99,8 @@ export default class LoPlayer {
     })
   }
 
-  stream () {
+  // 检测视频格式是否支持
+  mediaSourceExtensions () {
     const { source } = this.getEl
     this.player.load()
     switch (this.options.src[this.currentIndex].type) {
@@ -129,6 +134,8 @@ export default class LoPlayer {
         }
         break
       default:
+        // this.pause()
+        this.player.load()
         source.src = this.options.src[this.currentIndex].src
         source.type = this.options.src[this.currentIndex].type
         break
@@ -178,22 +185,14 @@ export default class LoPlayer {
 
   // 缓存
   preload () {
-    console.log(this.player.buffered)
-    setTimeout(() => {
-      const { videoProgressLine, preload } = this.getEl
+    const { videoProgressLine, preload } = this.getEl
+    if (this.player.buffered) {
       const len = this.player.buffered.length - 1
       if (len >= 0 && len < 2) {
         const end = this.player.buffered.end(0.1)
         const position = (end / this.player.duration) * videoProgressLine.offsetWidth
         preload.style.width = position.toFixed(2) + 'px'
       }
-    }, 0)
-    const { videoProgressLine, preload } = this.getEl
-    const len = this.player.buffered.length - 1
-    if (len >= 0 && len < 2) {
-      const end = this.player.buffered.end(0.1)
-      const position = (end / this.player.duration) * videoProgressLine.offsetWidth
-      preload.style.width = position.toFixed(2) + 'px'
     }
   }
 
@@ -230,6 +229,7 @@ export default class LoPlayer {
     playBtn.className = 'icon iconfont icon-caret-right'
   }
 
+  // 上一个
   prev () {
     const { prevBtn } = this.getEl
     prevBtn.addEventListener('click', () => {
@@ -243,27 +243,36 @@ export default class LoPlayer {
     })
   }
 
+  // 下一个
   next () {
     const { nextBtn } = this.getEl
     nextBtn.addEventListener('click', () => {
       if (this.currentIndex < this.options.src.length - 1) {
+        console.log('执行了')
+        this.pause()
+        // this.player.load()
+        this.player.setAttribute('preload', 'none')
         this.currentIndex++
       } else {
         this.currentIndex = 0
       }
       this.changeVideo()
     })
+    console.log(this.currentIndex)
+    console.log(this.options.src[this.currentIndex])
   }
 
   changeVideo () {
     const { currentTime, preload, videoProgressBar, videoProgress, player } = this.getEl
-    this.pause()
-    this.player.innerHTML = ''
+    this.player.load()
+    player.removeChild(player.children[0])
     const source = document.createElement('source')
     source.src = this.options.src[this.currentIndex].src
     source.type = this.options.src[this.currentIndex].type
     player.appendChild(source)
-    this.stream()
+    this.mediaSourceExtensions()
+    this.play()
+    // this.mediaSourceExtensions()
     console.log(this.player)
     this.currentTime = '00:00:00'
     currentTime.innerHTML = this.currentTime
@@ -275,6 +284,7 @@ export default class LoPlayer {
     // debugger
   }
 
+  // 时间更新的操作
   timeupdate () {
     const { currentTime, videoProgressLine, videoProgressBar, videoProgress } = this.getEl
     this.player.addEventListener('timeupdate', () => {
@@ -340,6 +350,7 @@ export default class LoPlayer {
     }
   }
 
+  // 播放结束后的操作
   ended () {
     const { playBtn } = this.getEl
     this.player.addEventListener('ended', () => {
