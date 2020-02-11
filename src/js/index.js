@@ -16,7 +16,7 @@ export default class LoPlayer extends Events {
     this.el = el
     this.options = options
     this.playStatus = false
-    this.loading = false
+    this.loading = true
     this.player = undefined
     this.currentTime = '00:00:00'
     this.duration = '00:00:00'
@@ -35,6 +35,7 @@ export default class LoPlayer extends Events {
     } else {
       const { player } = this.getEl
       this.player = player
+      this.showLoading(this.loading)
       this.bindEvent()
       this.mediaSourceExtensions()
       this.canplay()
@@ -100,6 +101,7 @@ export default class LoPlayer extends Events {
   // 检测视频格式是否支持
   mediaSourceExtensions () {
     const { source } = this.getEl
+    console.log(this.player)
     this.player.load()
     switch (this.options.src[this.currentIndex].type) {
       case 'hls':
@@ -118,7 +120,7 @@ export default class LoPlayer extends Events {
             })
           } else if (this.player.canPlayType('application/vnd.apple.mpegurl')) {
             source.src = this.options.src[this.currentIndex].src
-            this.player.addEventListener('canplay', () => {
+            this.on('canplay', () => {
               this.play()
             })
           }
@@ -203,6 +205,8 @@ export default class LoPlayer extends Events {
       duration.innerHTML = Format(this.player.duration)
       this.preload()
       this.loading = false
+      this.showLoading(this.loading)
+      this.showLogo()
     })
   }
 
@@ -218,6 +222,7 @@ export default class LoPlayer extends Events {
 
     this.playStatus = true
     this.player.play()
+    this.showLogo(this.playStatus)
     playBtn.className = 'icon iconfont icon-tingzhi'
   }
 
@@ -226,6 +231,7 @@ export default class LoPlayer extends Events {
     const { playBtn } = this.getEl
     this.playStatus = false
     this.player.pause()
+    this.showLogo(this.playStatus)
     playBtn.className = 'icon iconfont icon-caret-right'
   }
 
@@ -266,8 +272,8 @@ export default class LoPlayer extends Events {
     const { currentTime, preload, videoProgressBar, videoProgress, player } = this.getEl
     setTimeout(() => {
       console.log(this.player.buffered)
-      this.player.buffered.end()
-      this.player.load()
+      // this.player.buffered.end()
+      // this.player.load()
       console.log(player)
       player.removeChild(player.children[0])
       console.log(player)
@@ -293,18 +299,24 @@ export default class LoPlayer extends Events {
   // 时间更新的操作
   timeupdate () {
     const { currentTime, videoProgressLine, videoProgressBar, videoProgress } = this.getEl
+    const videoProgressLineWidth = videoProgressLine.offsetWidth
+    const videoProgressBarWidth = videoProgressBar.offsetWidth
+
     this.player.addEventListener('timeupdate', () => {
       this.preload()
       this.currentTime = Format(this.player.currentTime)
       currentTime.innerHTML = this.currentTime
 
-      const position = (this.player.currentTime / this.player.duration) * videoProgressLine.offsetWidth
-      let max
-      if (videoProgressBar.offsetLeft >= (videoProgressLine.offsetWidth - videoProgressBar.offsetWidth)) {
-        max = videoProgressLine.offsetWidth - videoProgressBar.offsetWidth
-      } else {
-        max = position
+      const videoProgressBarLeft = videoProgressBar.offsetLeft
+      const position = (this.player.currentTime / this.player.duration) * videoProgressLineWidth
+      let max = position
+
+      if (videoProgressBarLeft >= (videoProgressLineWidth - videoProgressBarWidth)) {
+        max = videoProgressLineWidth - videoProgressBarWidth
       }
+
+      if (Math.floor(position) === 0) max = 0
+
       this.currentTime = Format(this.player.currentTime, false)
       videoProgress.style.width = position + 'px'
       videoProgressBar.style.left = max + 'px'
@@ -362,6 +374,7 @@ export default class LoPlayer extends Events {
     this.player.addEventListener('ended', () => {
       this.playStatus = false
       playBtn.className = 'icon iconfont icon-caret-right'
+      this.showLogo()
     })
   }
 
@@ -459,5 +472,16 @@ export default class LoPlayer extends Events {
     this.player.muted = !this.player.muted
     this.player.muted ? this.volumeIcon = 'icon-guanbiyinliang' : this.volumeIcon = 'icon-yinliang'
     volumeBtn.classList.replace(volumeBtn.classList[volumeBtn.classList.length - 1], this.volumeIcon)
+  }
+
+  showLoading (showLoading = this.loading) {
+    console.log(showLoading)
+    const { loading } = this.getEl
+    loading.style.cssText = `display:${showLoading ? 'flex' : 'none'}`
+  }
+
+  showLogo (showLogo = this.playStatus) {
+    const { logo } = this.getEl
+    logo.style.cssText = `display:${!showLogo ? 'flex' : 'none'}`
   }
 }

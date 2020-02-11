@@ -42,16 +42,11 @@
     </div>
   </div>
   <!-- video加载部分 -->
-  // {{if loading}}
-  <div class="loading" style="display: none;">
-    <span class="icon iconfont icon-loading"></span>
-  </div>
-  // {{/if}}
-  <div class="loading" style="display: none;">
+  <div class="loading">
     <span class="icon iconfont icon-loading"></span>
   </div>
   <!-- 暂停显示的部分 -->
-  <div class="playStatus" style="display:none;">
+  <div class="playStatus">
     <span class="icon iconfont icon-video1"></span>
   </div>
 </div>
