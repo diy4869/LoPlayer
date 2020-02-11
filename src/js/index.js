@@ -5,12 +5,14 @@
 import '~/css/iconfont.css'
 import '~/css/player.scss'
 import Template from '@/js/template'
-import { Format, reactive } from '@/js/utils'
+import Events from '@/js/Events'
+import { Format } from '@/js/utils'
 import Hls from 'hls.js'
 import dashjs from 'dashjs'
 
-export default class LoPlayer {
+export default class LoPlayer extends Events {
   constructor (el, options) {
+    super()
     this.el = el
     this.options = options
     this.playStatus = false
@@ -21,10 +23,6 @@ export default class LoPlayer {
     this.volumeIcon = ''
     this.currentIndex = 0
 
-    const data = reactive(this)
-    data.playStatus = true
-    this.playStatus = true
-    console.log(data)
     this.getEl = new Template({
       el: document.querySelectorAll(this.el)[0]
     })
@@ -130,14 +128,16 @@ export default class LoPlayer {
         console.log('dash')
         if (dashjs) {
           const player = dashjs.MediaPlayer().create()
-          player.initialize(this.player, this.options.src[this.currentIndex].src, true)
+          player.initialize(this.player, this.options.src[this.currentIndex].src, false)
         }
         break
       default:
         // this.pause()
-        this.player.load()
-        source.src = this.options.src[this.currentIndex].src
-        source.type = this.options.src[this.currentIndex].type
+        setTimeout(() => {
+          this.player.load()
+          source.src = this.options.src[this.currentIndex].src
+          source.type = this.options.src[this.currentIndex].type
+        })
         break
     }
   }
@@ -186,7 +186,7 @@ export default class LoPlayer {
   // 缓存
   preload () {
     const { videoProgressLine, preload } = this.getEl
-    if (this.player.buffered) {
+    if (this.player && this.player.buffered) {
       const len = this.player.buffered.length - 1
       if (len >= 0 && len < 2) {
         const end = this.player.buffered.end(0.1)
@@ -264,14 +264,20 @@ export default class LoPlayer {
 
   changeVideo () {
     const { currentTime, preload, videoProgressBar, videoProgress, player } = this.getEl
-    this.player.load()
-    player.removeChild(player.children[0])
-    const source = document.createElement('source')
-    source.src = this.options.src[this.currentIndex].src
-    source.type = this.options.src[this.currentIndex].type
-    player.appendChild(source)
-    this.mediaSourceExtensions()
-    this.play()
+    setTimeout(() => {
+      console.log(this.player.buffered)
+      this.player.buffered.end()
+      this.player.load()
+      console.log(player)
+      player.removeChild(player.children[0])
+      console.log(player)
+      const source = document.createElement('source')
+      source.src = this.options.src[this.currentIndex].src
+      source.type = this.options.src[this.currentIndex].type
+      player.appendChild(source)
+      this.mediaSourceExtensions()
+      this.play()
+    })
     // this.mediaSourceExtensions()
     console.log(this.player)
     this.currentTime = '00:00:00'
