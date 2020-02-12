@@ -22,14 +22,23 @@ export default class LoPlayer extends Events {
     this.duration = '00:00:00'
     this.volumeIcon = ''
     this.currentIndex = 0
+    this.screenShot = false
+    this.loop = true
+    this.speed = [0.25, 0.5, 1, 1.25, 1.5, 1.75, 2]
+    // this.defaultSpeed = 1
 
     this.getEl = new Template({
-      el: document.querySelectorAll(this.el)[0]
+      container: document.querySelectorAll(this.el)[0],
+      screenShot: this.screenShot,
+      speed: this.speed,
+      currentIndex: this.currentIndex,
+      currentTime: this.currentTime
     })
     this.init()
   }
 
   init () {
+    console.log(this)
     if (!document.querySelectorAll(this.el)[0]) {
       throw new Error(this.el + ' is not found')
     } else {
@@ -39,6 +48,7 @@ export default class LoPlayer extends Events {
       this.bindEvent()
       this.mediaSourceExtensions()
       this.canplay()
+      this.preload()
       this.volumeChangeIcon()
       this.timeupdate()
       this.jump()
@@ -51,31 +61,51 @@ export default class LoPlayer extends Events {
       this.prev()
       this.next()
       this.screenshot()
-      console.log(this.player)
+      this.setSpeed()
+      this.showSetting()
+      // this.setSpeed(this.defaultSpeed)
+      this.contextmenu()
+      this.error()
     }
+  }
+
+  // 右键
+  contextmenu () {
+    this.player.addEventListener('contextmenu', e => {
+      e.preventDefault()
+    })
   }
 
   screenshot () {
     const { screenshot } = this.getEl
-    screenshot.addEventListener('click', () => {
-      const canvas = document.createElement('canvas')
-      canvas.width = this.player.offsetWidth
-      canvas.height = this.player.offsetHeight
-      const link = document.createElement('a')
-      const ctx = canvas.getContext('2d')
-      document.body.appendChild(canvas)
-      ctx.drawImage(this.player, 0, 0, canvas.width, canvas.height)
-      const res = canvas.toDataURL('image/png')
-      link.setAttribute('download', '下载图片')
-      console.log(link)
-      link.setAttribute('href', res)
-      document.body.appendChild(link)
-      link.click()
-    })
+    if (screenshot) {
+      screenshot.addEventListener('click', () => {
+        const canvas = document.createElement('canvas')
+        canvas.width = this.player.offsetWidth
+        canvas.height = this.player.offsetHeight
+        const link = document.createElement('a')
+        const ctx = canvas.getContext('2d')
+        document.body.appendChild(canvas)
+        ctx.drawImage(this.player, 0, 0, canvas.width, canvas.height)
+        const res = canvas.toDataURL('image/png')
+        link.setAttribute('download', '下载图片')
+        console.log(link)
+        link.setAttribute('href', res)
+        document.body.appendChild(link)
+        link.click()
+      })
+    }
   }
 
   error () {
-    this.player.addEventListener('error', () => {
+    // setInterval(() => {
+    //   console.log(document.querySelectorAll('video'))
+    //   console.log(`networkState：${this.player.networkState}`)
+    //   console.log(`readyState：${this.player.readyState}`)
+    //   console.log(`error：${this.player.error}`)
+    // }, 1000)
+    this.player.addEventListener('error', (e) => {
+      console.log(e)
       /*
       readyState表示音频/视频元素的就绪状态：
         0 = HAVE_NOTHING - 没有关于音频/视频是否就绪的信息
@@ -131,6 +161,7 @@ export default class LoPlayer extends Events {
         if (dashjs) {
           const player = dashjs.MediaPlayer().create()
           player.initialize(this.player, this.options.src[this.currentIndex].src, false)
+          // player.reset()
         }
         break
       default:
@@ -309,7 +340,7 @@ export default class LoPlayer extends Events {
 
       const videoProgressBarLeft = videoProgressBar.offsetLeft
       const position = (this.player.currentTime / this.player.duration) * videoProgressLineWidth
-      let max = position
+      let max = position - 1
 
       if (videoProgressBarLeft >= (videoProgressLineWidth - videoProgressBarWidth)) {
         max = videoProgressLineWidth - videoProgressBarWidth
@@ -405,8 +436,31 @@ export default class LoPlayer extends Events {
 
   // 全屏
   fullScreen () {
+    const { fullScreen } = this.getEl
+    let fullScreenIcon = ''
+
     this.options.fullScreen = !this.options.fullScreen
-    this.options.fullScreen ? this.FullScreen() : this.ExitFullscreen()
+
+    if (this.options.fullScreen) {
+      this.FullScreen()
+      fullScreenIcon = 'icon-fullscreen-exit'
+    } else {
+      this.ExitFullscreen()
+      fullScreenIcon = 'icon-fullscreen'
+    }
+
+    fullScreen.classList.replace(fullScreen.classList[fullScreen.classList.length - 1], fullScreenIcon)
+  }
+
+  // 设置播放速度
+  setSpeed () {
+    const { speedPanel } = this.getEl
+    for (let i = 0; i < speedPanel.children.length; i++) {
+      speedPanel.children[i].addEventListener('click', () => {
+        this.player.playbackRate = this.speed[i]
+        speedPanel.style.cssText = 'display: none;'
+      })
+    }
   }
 
   // 修改音量图标
@@ -478,6 +532,32 @@ export default class LoPlayer extends Events {
     console.log(showLoading)
     const { loading } = this.getEl
     loading.style.cssText = `display:${showLoading ? 'flex' : 'none'}`
+  }
+
+  showSetting () {
+    const { setting, settingPanel, speedPanel } = this.getEl
+    const panel = {
+      0: {
+        show: false,
+        name: 'speedPanel'
+      }
+    }
+    let showPanel = false
+
+    setting.addEventListener('click', () => {
+      showPanel = !showPanel
+      settingPanel.style.cssText = `display: ${showPanel ? 'block' : 'none'}`
+      speedPanel.style.cssText = 'display: none;'
+
+      for (let i = 0; i < settingPanel.children.length; i++) {
+        settingPanel.children[i].addEventListener('click', () => {
+          showPanel = false
+          panel[i].show = true
+          settingPanel.style.cssText = `display: ${showPanel ? 'block' : 'none'}`
+          this.getEl[panel[i].name].style.cssText = `display: ${panel[i].show ? 'block' : 'none'}`
+        })
+      }
+    })
   }
 
   showLogo (showLogo = this.playStatus) {

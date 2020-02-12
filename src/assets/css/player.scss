@@ -1,4 +1,5 @@
 @import './theme.scss';
+@import './reset.css';
 
 #player {
   width: 889px;
@@ -19,25 +20,23 @@
   .loading, .playStatus {
     width: 100%;
     height: 100%;
-    background: $blackTranslucent;
-    position: absolute;
-    top: 0;
-    left: 0;
-    display: none;
+    // background: $blackTranslucent;
+    // position: absolute;
+    // top: 0;
+    // left: 0;
+    // display: none;
     justify-content: center;
     align-items: center;
     z-index: 100;
     .icon {
       font-size: 60px;
       color: white;
+      z-index: 1;
     }
     .icon-loading {
       animation: loading 1.5s linear infinite;
       display: inline-block;
     }
-    // .icon-video1 {
-    //   color: #409EFF;
-    // }
     @keyframes loading {
       from {
         transform: rotate(0deg);
@@ -68,7 +67,7 @@
     justify-content: space-between;
     align-items: center;
     transition: all 0.3s linear;
-    transform: translateY(91%);
+    // transform: translateY(91%);
     // opacity: 0; 
     span {
       vertical-align: middle;
@@ -110,7 +109,7 @@
       .progress {
         width: 0%;
         height: 100%;
-        background: $progressColor;
+        background: $primaryColor;
         position: absolute;
         top: 0px;
         left: 0%;
@@ -127,15 +126,14 @@
       }
     }
     .progressBar {
-      width: 10px;
-      height: 10px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       background: $white;
       position: absolute;
-      top: -4px;
-      left: 0%;
+      top: -3px;
       z-index: 1;
-      border: 2px solid #409EFF;
+      border: 2px solid $primaryColor;
     }
     .volume {
       margin-right: 10px;
@@ -197,11 +195,66 @@
       color: white;
       width: 78px;
       padding: 5px;
-      background: $progressColor;
+      background: $primaryColor;
       margin-right: 10px;
       margin-top: 10px;
       border-radius: 5px;
       text-align: center;
+    }
+  }
+  .setting-panel {
+    position: absolute;
+    bottom: 50px;
+    right: 40px;
+    z-index: 1;
+    background: $blackTranslucent;
+    color: white;
+    width: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 5px 0;
+    display: none;
+    li {
+      width: 100%;
+      height: 30px;
+      line-height: 30px;
+      font-size: 14px;
+      display: flex;
+      justify-content: space-evenly;
+      span{
+        vertical-align: middle;
+        &:nth-of-type(2) {
+          font-size: 16px;
+        }
+      }
+      &:hover {
+        background: rgba(255, 255, 255, 0.5);
+        color: white;
+      }
+    }
+  }
+}
+ul {
+  width: 60px;
+  padding: 5px 0;
+  position: absolute;
+  bottom: 50px;
+  right: 60px;
+  background: $blackTranslucent;
+  color: white;
+  display: none;
+  transition: all 0.3s linear;
+  li {
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
+    font-size: 12px;
+    display: flex;
+    justify-content: space-evenly;
+    &:hover {
+      background: rgba(255, 255, 255, 0.5);
+      color: white;
     }
   }
 }

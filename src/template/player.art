@@ -34,17 +34,36 @@
         </div>
         <div class="progressBar"></div>
       </div>
-      <span class="icon iconfont icon-camera1 screenshot"></span>
+      {{if options.screenShot}}
+        <span class="icon iconfont icon-camera1 screenshot"></span>
+      {{/if}}
       <!-- 设置部分 -->
-      <span class="icon iconfont icon-kongzhi"></span>
+      <span class="setting icon iconfont icon-setting"></span>
       <!-- 全屏 -->
       <span class="fullscreen icon iconfont icon-fullscreen"></span>
     </div>
   </div>
+  <!-- 设置 -->
+  <ul class="setting-panel">
+    <li>
+      <span>播放速度</span>
+      <span class="icon iconfont icon-right"></span>
+    </li>
+    <li>
+      <span>播放模式</span>
+      <span class="icon iconfont icon-right"></span>
+    </li>
+  </ul>
+  <ul class="speed-panel">
+    {{each options.speed}}
+      <li>{{$value}}</li>
+    {{/each}}
+  </ul>
   <!-- video加载部分 -->
   <div class="loading">
     <span class="icon iconfont icon-loading"></span>
   </div>
+  
   <!-- 暂停显示的部分 -->
   <div class="playStatus">
     <span class="icon iconfont icon-video1"></span>

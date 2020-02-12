@@ -1,3 +1,8 @@
+/*
+ * @Author: last order
+ * @Date: 2019-08-12 20:54:07
+ * @LastEditTime : 2020-02-12 17:40:12
+ */
 const path = require('path')
 const env = require('./env')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')

@@ -1,21 +1,20 @@
 /*
  * @Author: last order
  * @Date: 2019-08-13 16:51:16
- * @LastEditTime : 2020-02-11 17:19:11
+ * @LastEditTime : 2020-02-12 19:34:15
  */
 import player from '../template/player.art'
 export default class Template {
-  constructor (el) {
-    this.el = el
+  constructor (options) {
+    this.container = options.container
+    this.options = options
     this.init()
   }
 
   init () {
-    this.el.el.innerHTML = player({
-      options: this.options,
-      currentIndex: this.currentIndex,
-      loading: this.loading,
-      playStatus: this.playStatus
+    console.log(this.options)
+    this.container.innerHTML = player({
+      options: this.options
     })
     this.playerBox = document.querySelectorAll('.playerBox')[0]
     this.prevBtn = document.querySelectorAll('.playerBox .prevBtn')[0]
@@ -40,10 +39,15 @@ export default class Template {
     this.volumeBtn = document.querySelectorAll('.playerBox .volumeBtn')[0]
     this.fullScreen = document.querySelectorAll('.playerBox .fullscreen')[0]
     this.volumeBtn = document.querySelectorAll('.playerBox .volumeBtn')[0]
-    this.screenshot = document.querySelectorAll('.playerBox .screenshot')[0]
     this.volumeBtn = document.querySelectorAll('.playerBox .volumeBtn')[0]
     this.loading = document.querySelectorAll('.playerBox .loading')[0]
     this.volumeBtn = document.querySelectorAll('.playerBox .volumeBtn')[0]
     this.logo = document.querySelectorAll('.playerBox .playStatus')[0]
+    this.speedPanel = document.querySelectorAll('.playerBox .speed-panel')[0]
+    this.setting = document.querySelectorAll('.playerBox .setting')[0]
+    this.settingPanel = document.querySelectorAll('.playerBox .setting-panel')[0]
+    if (this.options.screenShot) {
+      this.screenshot = document.querySelectorAll('.playerBox .screenshot')[0]
+    }
   }
 }
