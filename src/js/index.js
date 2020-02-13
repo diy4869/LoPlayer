@@ -106,6 +106,7 @@ export default class LoPlayer extends Events {
     // }, 1000)
     this.player.addEventListener('error', (e) => {
       console.log(e)
+      console.log(this.player)
       /*
       readyState表示音频/视频元素的就绪状态：
         0 = HAVE_NOTHING - 没有关于音频/视频是否就绪的信息
@@ -165,12 +166,9 @@ export default class LoPlayer extends Events {
         }
         break
       default:
-        // this.pause()
-        setTimeout(() => {
-          this.player.load()
-          source.src = this.options.src[this.currentIndex].src
-          source.type = this.options.src[this.currentIndex].type
-        })
+        this.player.load()
+        this.player.src = this.options.src[this.currentIndex].src
+        this.player.type = this.options.src[this.currentIndex].type
         break
     }
   }
@@ -268,54 +266,51 @@ export default class LoPlayer extends Events {
 
   // 上一个
   prev () {
-    const { prevBtn } = this.getEl
+    const { prevBtn, nextBtn } = this.getEl
     prevBtn.addEventListener('click', () => {
       console.log('prev')
       if (this.currentIndex > 0) {
-        this.currentIndex--
-      } else {
-        this.currentIndex = this.options.src.length - 1
+        this.player.setAttribute('preload', 'none')
+        --this.currentIndex
+        this.changeVideo()
+        this.play()
+        console.log(this.currentIndex, 0)
+        if (this.currentIndex === 0) {
+          prevBtn.style.cssText = 'color: rgba(255, 255, 255, 0.7)'
+          nextBtn.style.cssText = 'color: white'
+          // eslint-disable-next-line no-useless-return
+          return
+        }
       }
-      this.changeVideo()
     })
   }
 
   // 下一个
   next () {
-    const { nextBtn } = this.getEl
+    const { nextBtn, prevBtn } = this.getEl
     nextBtn.addEventListener('click', () => {
       if (this.currentIndex < this.options.src.length - 1) {
-        console.log('执行了')
-        this.pause()
-        // this.player.load()
         this.player.setAttribute('preload', 'none')
-        this.currentIndex++
-      } else {
-        this.currentIndex = 0
+        ++this.currentIndex
+        this.changeVideo()
+        this.play()
+        prevBtn.style.cssText = 'color: white'
+        if (this.currentIndex === this.options.src.length - 1) {
+          nextBtn.style.cssText = 'color: rgba(255, 255, 255, 0.7)'
+          // eslint-disable-next-line no-useless-return
+          return
+        }
       }
-      this.changeVideo()
     })
     console.log(this.currentIndex)
     console.log(this.options.src[this.currentIndex])
   }
 
   changeVideo () {
-    const { currentTime, preload, videoProgressBar, videoProgress, player } = this.getEl
-    setTimeout(() => {
-      console.log(this.player.buffered)
-      // this.player.buffered.end()
-      // this.player.load()
-      console.log(player)
-      player.removeChild(player.children[0])
-      console.log(player)
-      const source = document.createElement('source')
-      source.src = this.options.src[this.currentIndex].src
-      source.type = this.options.src[this.currentIndex].type
-      player.appendChild(source)
-      this.mediaSourceExtensions()
-      this.play()
-    })
-    // this.mediaSourceExtensions()
+    const { currentTime, preload, videoProgressBar, videoProgress } = this.getEl
+    this.pause()
+    this.showLoading(this.showLoading)
+    this.mediaSourceExtensions()
     console.log(this.player)
     this.currentTime = '00:00:00'
     currentTime.innerHTML = this.currentTime
@@ -351,6 +346,15 @@ export default class LoPlayer extends Events {
       this.currentTime = Format(this.player.currentTime, false)
       videoProgress.style.width = position + 'px'
       videoProgressBar.style.left = max + 'px'
+
+      const readyState = this.player.readyState
+      const networkState = this.player.networkState
+
+      if (readyState === 4 && (networkState === 1 || networkState === 2)) {
+        this.showLoading(false)
+      } else {
+        this.showLoading(true)
+      }
     })
   }
 
@@ -492,6 +496,7 @@ export default class LoPlayer extends Events {
           position = 0
         }
         const volumeSize = Number((position / maxMovePoint).toFixed(2))
+
         volumeProgress.style.width = position + 'px'
         volumeBar.style.left = position + 'px'
         this.player.volume = volumeSize
@@ -529,7 +534,6 @@ export default class LoPlayer extends Events {
   }
 
   showLoading (showLoading = this.loading) {
-    console.log(showLoading)
     const { loading } = this.getEl
     loading.style.cssText = `display:${showLoading ? 'flex' : 'none'}`
   }
