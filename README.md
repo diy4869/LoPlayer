@@ -1,12 +1,16 @@
 <!--
  * @Author: last order
  * @Date: 2019-08-12 10:44:01
- * @LastEditTime : 2020-02-12 17:59:14
+ * @LastEditTime : 2020-02-14 22:29:40
  -->
 # LoPlayer
 一个简易的播放器，支持vue、react等
 
 ![效果图](https://github.com/diy4869/LoPlayer/blob/master/example/02.png)
+
+## API文档
+
+[LoPlayer](https://diy4869.github.io/LoPlayer-Docs)
 
 ## 支持的格式
 - hls
