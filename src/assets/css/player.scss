@@ -223,14 +223,14 @@
       font-size: 14px;
       display: flex;
       justify-content: space-evenly;
-      span{
+      span {
         vertical-align: middle;
         &:nth-of-type(2) {
           font-size: 16px;
         }
       }
       &:hover {
-        background: rgba(255, 255, 255, 0.5);
+        background: $primaryColor;
         color: white;
       }
     }
@@ -254,7 +254,7 @@ ul {
     display: flex;
     justify-content: space-evenly;
     &:hover {
-      background: rgba(255, 255, 255, 0.5);
+      background: $primaryColor;
       color: white;
     }
   }

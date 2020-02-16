@@ -1,7 +1,7 @@
 /*
  * @Author: last order
  * @Date: 2020-02-11 13:05:39
- * @LastEditTime : 2020-02-11 20:37:03
+ * @LastEditTime: 2020-02-16 20:41:58
  */
 export default class Events {
   constructor () {
@@ -15,13 +15,12 @@ export default class Events {
     if (typeof callback !== 'function') throw TypeError(`${callback} is not a function`)
     const findEvent = this.handlerName.find(item => item === eventName)
     if (findEvent) {
-      if (this.events[eventName]) {
-        this.events[eventName].push(callback)
-      } else {
-        this.events[eventName] = [callback]
+      if (!this.events[eventName]) {
+        this.events[eventName] = []
       }
+      this.events[eventName].push(callback)
     }
-    this.emit(eventName)
+    // this.emit(eventName)
   }
 
   // 触发事件
@@ -30,7 +29,7 @@ export default class Events {
     for (const event of Object.entries(this.events)) {
       if (eventName === event[0]) {
         event[1].map(fn => {
-          fn.call(this, ...args)
+          fn.call(this.container, ...args)
         })
       }
     }

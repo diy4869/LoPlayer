@@ -1,9 +1,9 @@
 /*
  * @Author: last order
  * @Date: 2019-08-15 20:36:02
- * @LastEditTime : 2020-02-13 18:12:36
+ * @LastEditTime: 2020-02-16 15:18:11
  */
-import LoPlayer from './js/index'
+import LoPlayer from '@/js/index'
 
 const player = new LoPlayer('#player', {
   src: [
@@ -36,9 +36,8 @@ const player = new LoPlayer('#player', {
     //   type: 'video/mp4'
     // }
   ],
-  autoplay: true,
-  loop: true,
-  fullScreen: false
+  autoPlay: false,
+  loop: true
 })
 console.log(player)
 

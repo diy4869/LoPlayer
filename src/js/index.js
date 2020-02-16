@@ -10,9 +10,8 @@ import { Format } from '@/js/utils'
 import Hls from 'hls.js'
 import dashjs from 'dashjs'
 
-export default class LoPlayer extends Events {
+export default class LoPlayer {
   constructor (el, options) {
-    super()
     this.el = el
     this.options = options
     this.playStatus = false
@@ -25,11 +24,11 @@ export default class LoPlayer extends Events {
     this.screenShot = false
     this.loop = true
     this.speed = [0.25, 0.5, 1, 1.25, 1.5, 1.75, 2]
+    this.events = new Events()
     // this.defaultSpeed = 1
-
     this.getEl = new Template({
       container: document.querySelectorAll(this.el)[0],
-      screenShot: this.screenShot,
+      screenShot: this.options.screenShot,
       speed: this.speed,
       currentIndex: this.currentIndex,
       currentTime: this.currentTime
@@ -44,11 +43,13 @@ export default class LoPlayer extends Events {
     } else {
       const { player } = this.getEl
       this.player = player
+      this.events = new Events({
+        container: this.player
+      })
       this.showLoading(this.loading)
       this.bindEvent()
       this.mediaSourceExtensions()
       this.canplay()
-      this.preload()
       this.volumeChangeIcon()
       this.timeupdate()
       this.jump()
@@ -66,7 +67,21 @@ export default class LoPlayer extends Events {
       // this.setSpeed(this.defaultSpeed)
       this.contextmenu()
       this.error()
+      this.autoPlay()
+      // this.fullScreen()
     }
+  }
+
+  on (event, fn) {
+    this.events.on(event, fn)
+  }
+
+  getCurrentTime () {
+    return this.player.currentTime
+  }
+
+  getDuration () {
+    return this.player.duration
   }
 
   // 右键
@@ -74,6 +89,12 @@ export default class LoPlayer extends Events {
     this.player.addEventListener('contextmenu', e => {
       e.preventDefault()
     })
+  }
+
+  autoPlay () {
+    if (this.options.autoPlay) {
+      this.play()
+    }
   }
 
   screenshot () {
@@ -129,14 +150,26 @@ export default class LoPlayer extends Events {
     })
   }
 
+  // 获取视频格式
+  getExt (str) {
+    if (typeof str !== 'string') throw TypeError(`${str} is not a string`)
+
+    const start = str.lastIndexOf('.')
+    if (start !== -1) {
+      const ext = str.substr(start + 1, str.length)
+      return ext
+    }
+  }
+
   // 检测视频格式是否支持
   mediaSourceExtensions () {
     const { source } = this.getEl
-    console.log(this.player)
     this.player.load()
-    switch (this.options.src[this.currentIndex].type) {
-      case 'hls':
-        console.log('hls')
+    const src = this.options.src[this.currentIndex].src
+    const ext = this.getExt(src)
+    switch (ext) {
+      case 'm3u8':
+        console.log('m3u8')
         if (Hls) {
           if (Hls.isSupported()) {
             const hls = new Hls()
@@ -157,7 +190,7 @@ export default class LoPlayer extends Events {
           }
         }
         break
-      case 'dash':
+      case 'mpd':
         console.log('dash')
         if (dashjs) {
           const player = dashjs.MediaPlayer().create()
@@ -166,6 +199,7 @@ export default class LoPlayer extends Events {
         }
         break
       default:
+        console.log(`当前视频格式为：${ext}`)
         this.player.load()
         this.player.src = this.options.src[this.currentIndex].src
         this.player.type = this.options.src[this.currentIndex].type
@@ -220,7 +254,7 @@ export default class LoPlayer extends Events {
     if (this.player && this.player.buffered) {
       const len = this.player.buffered.length - 1
       if (len >= 0 && len < 2) {
-        const end = this.player.buffered.end(0.1)
+        const end = this.player.buffered.end(0)
         const position = (end / this.player.duration) * videoProgressLine.offsetWidth
         preload.style.width = position.toFixed(2) + 'px'
       }
@@ -327,7 +361,9 @@ export default class LoPlayer extends Events {
     const { currentTime, videoProgressLine, videoProgressBar, videoProgress } = this.getEl
     const videoProgressLineWidth = videoProgressLine.offsetWidth
     const videoProgressBarWidth = videoProgressBar.offsetWidth
-
+    this.on('timeupdate', () => {
+      console.log(1)
+    })
     this.player.addEventListener('timeupdate', () => {
       this.preload()
       this.currentTime = Format(this.player.currentTime)
@@ -358,29 +394,33 @@ export default class LoPlayer extends Events {
     })
   }
 
+  seekTo (time) {
+    this.player.currentTime = time
+    const { videoProgress, videoProgressLine, videoProgressBar } = this.getEl
+    const position = (this.player.currentTime / this.player.duration) * videoProgressLine.offsetWidth
+
+    videoProgress.style.width = position + 'px'
+    videoProgressBar.style.left = position + 'px'
+  }
+
   // 点击跳转
   jump () {
-    const { videoProgress, videoProgressLine, videoProgressBar } = this.getEl
+    const { videoProgressLine } = this.getEl
     videoProgressLine.addEventListener('click', (event) => {
       const e = window.event || event
-      const currentTime = e.offsetX / videoProgressLine.offsetWidth * this.player.duration
       const position = e.offsetX
+      const currentTime = position / videoProgressLine.offsetWidth * this.player.duration
+      this.seekTo(currentTime)
       this.preload()
-      this.currentTime = Format(currentTime)
-      this.player.currentTime = currentTime
-      videoProgress.style.width = position + 'px'
-      videoProgressBar.style.left = position + 'px'
     })
   }
 
   // 拖拽调整进度
   progressMove () {
-    const { videoProgress, videoProgressLine, videoProgressBar, controlBox, playerBox } = this.getEl
+    const { videoProgressLine, videoProgressBar, controlBox, playerBox } = this.getEl
     videoProgressBar.onmousedown = () => {
-      document.onmousemove = (event) => {
-        const ev = event || window.event
+      document.onmousemove = (ev) => {
         ev.preventDefault()
-        console.log(6)
         let position = ev.clientX - controlBox.offsetLeft - playerBox.offsetLeft
         const maxMovePoint = videoProgressLine.offsetWidth - videoProgressBar.offsetWidth
         if (position > maxMovePoint) {
@@ -389,10 +429,8 @@ export default class LoPlayer extends Events {
           position = 0
         }
         const currentTime = (position / maxMovePoint) * this.player.duration
-        this.currentTime = Format(currentTime)
-        this.player.currentTime = currentTime
-        videoProgress.style.width = position + 'px'
-        videoProgressBar.style.left = position + 'px'
+
+        this.seekTo(currentTime)
       }
     }
   }
@@ -485,7 +523,7 @@ export default class LoPlayer extends Events {
 
   // 拖拽调整音量大小
   volumeMove () {
-    const { volumeLine, volumeBar, volumeProgress, volumeBox, playerBox } = this.getEl
+    const { volumeLine, volumeBar, volumeBox, playerBox } = this.getEl
     volumeBar.onmousedown = () => {
       document.onmousemove = (ev) => {
         let position = ev.clientX - volumeBox.offsetLeft - playerBox.offsetLeft
@@ -497,31 +535,38 @@ export default class LoPlayer extends Events {
         }
         const volumeSize = Number((position / maxMovePoint).toFixed(2))
 
-        volumeProgress.style.width = position + 'px'
-        volumeBar.style.left = position + 'px'
-        this.player.volume = volumeSize
-        this.volumeChangeIcon()
+        this.setVolume(volumeSize)
       }
     }
+  }
+
+  setVolume (volume) {
+    console.log(volume)
+    this.player.volume = volume
+
+    const { volumeLine, volumeBar, volumeProgress } = this.getEl
+    const position = Number((this.player.volume / 1).toFixed(2)) * volumeLine.offsetWidth
+    volumeProgress.style.width = position + 'px'
+    volumeBar.style.left = position - 1 + 'px'
+
+    this.volumeChangeIcon()
   }
 
   // 点击调整音量大小
   volume () {
     const { volumeLine, volumeBar, volumeProgress } = this.getEl
     console.log(volumeProgress)
-    volumeProgress.addEventListener('click', (event) => {
+    volumeLine.addEventListener('click', (event) => {
       const e = window.event || event
       let position = e.offsetX
-      const volumeSize = Number((position / volumeLine.offsetWidth).toFixed(2))
       if ((position - volumeBar.offsetWidth) <= 0) {
         position = 0
       } else if (position > (volumeLine.offsetWidth - volumeBar.offsetWidth)) {
         position = volumeLine.offsetWidth - volumeBar.offsetWidth
       }
-      volumeProgress.style.width = position + 'px'
-      volumeBar.style.left = position + 'px'
-      this.player.volume = volumeSize
-      this.volumeChangeIcon()
+      const volumeSize = Number((position / volumeLine.offsetWidth).toFixed(2))
+
+      this.setVolume(volumeSize)
     })
   }
 
