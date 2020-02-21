@@ -1,11 +1,12 @@
 /*
  * @Author: last order
  * @Date: 2020-02-11 13:05:39
- * @LastEditTime: 2020-02-16 20:41:58
+ * @LastEditTime: 2020-02-20 17:56:10
  */
 export default class Events {
   constructor () {
-    this.handlerName = ['canplay', 'canplaythrough', 'durationchange', 'emptied', 'ended', 'error', 'loadeddata', 'loadedmetadata', 'loadstart', 'play', 'pause', 'playing', 'progress', 'ratechange', 'readystatechange', 'seeked', 'seeking', 'stalled', 'suspend', 'timeupdate', 'volumechange', 'waiting']
+    // this.handlerName = ['canplay', 'canplaythrough', 'durationchange', 'emptied', 'ended', 'error', 'loadeddata', 'loadedmetadata', 'loadstart', 'play', 'pause', 'playing', 'progress', 'ratechange', 'readystatechange', 'seeked', 'seeking', 'stalled', 'suspend', 'timeupdate', 'volumechange', 'waiting']
+    this.handlerName = []
     this.events = {}
   }
 
@@ -27,6 +28,7 @@ export default class Events {
   emit (eventName, ...args) {
     if (!eventName) throw Error(`${eventName} is not defined`)
     for (const event of Object.entries(this.events)) {
+      console.log(eventName, event[0])
       if (eventName === event[0]) {
         event[1].map(fn => {
           fn.call(this.container, ...args)

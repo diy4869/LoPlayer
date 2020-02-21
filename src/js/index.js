@@ -25,9 +25,12 @@ export default class LoPlayer {
     this.loop = true
     this.speed = [0.25, 0.5, 1, 1.25, 1.5, 1.75, 2]
     this.events = new Events()
+    this.switch = typeof this.options.src !== 'string'
+
     // this.defaultSpeed = 1
     this.getEl = new Template({
       container: document.querySelectorAll(this.el)[0],
+      switch: this.switch,
       screenShot: this.options.screenShot,
       speed: this.speed,
       currentIndex: this.currentIndex,
@@ -124,6 +127,7 @@ export default class LoPlayer {
     //   console.log(`networkState：${this.player.networkState}`)
     //   console.log(`readyState：${this.player.readyState}`)
     //   console.log(`error：${this.player.error}`)
+    //   console.log(`seeking: ${this.player.seeking}`)
     // }, 1000)
     this.player.addEventListener('error', (e) => {
       console.log(e)
@@ -163,17 +167,32 @@ export default class LoPlayer {
 
   // 检测视频格式是否支持
   mediaSourceExtensions () {
-    const { source } = this.getEl
     this.player.load()
-    const src = this.options.src[this.currentIndex].src
-    const ext = this.getExt(src)
+    const videoSource = this.options.src
+    let playerURL, ext, type
+
+    if (videoSource) {
+      if (typeof this.options.src === 'string') {
+        playerURL = videoSource
+        ext = this.getExt(playerURL)
+        this.player.src = playerURL
+      } else {
+        if (type) this.player.type = type
+        playerURL = videoSource[this.currentIndex].src
+        type = videoSource[this.currentIndex].type
+        ext = this.getExt(playerURL)
+        this.player.type = videoSource[this.currentIndex].type
+        this.player.src = playerURL
+      }
+    }
+
     switch (ext) {
       case 'm3u8':
         console.log('m3u8')
         if (Hls) {
           if (Hls.isSupported()) {
             const hls = new Hls()
-            hls.loadSource(this.options.src[this.currentIndex].src)
+            hls.loadSource(playerURL)
             hls.attachMedia(this.player)
             console.log(hls)
             hls.on(Hls.Events.MANIFEST_PARSED, () => {
@@ -183,7 +202,7 @@ export default class LoPlayer {
               console.log('test')
             })
           } else if (this.player.canPlayType('application/vnd.apple.mpegurl')) {
-            source.src = this.options.src[this.currentIndex].src
+            this.player.src = playerURL
             this.on('canplay', () => {
               this.play()
             })
@@ -193,16 +212,21 @@ export default class LoPlayer {
       case 'mpd':
         console.log('dash')
         if (dashjs) {
-          const player = dashjs.MediaPlayer().create()
-          player.initialize(this.player, this.options.src[this.currentIndex].src, false)
+          const player = new dashjs.MediaPlayer().create()
           // player.reset()
+          player.initialize(this.player, playerURL, false)
+          // player.reset()
+          // dashjs.MediaPlayerEvents()
+          this.events.on('destory', () => {
+            console.log('执行了')
+            player.reset()
+          })
         }
         break
       default:
         console.log(`当前视频格式为：${ext}`)
         this.player.load()
-        this.player.src = this.options.src[this.currentIndex].src
-        this.player.type = this.options.src[this.currentIndex].type
+        this.player.src = playerURL
         break
     }
   }
@@ -301,43 +325,46 @@ export default class LoPlayer {
   // 上一个
   prev () {
     const { prevBtn, nextBtn } = this.getEl
-    prevBtn.addEventListener('click', () => {
-      console.log('prev')
-      if (this.currentIndex > 0) {
-        this.player.setAttribute('preload', 'none')
-        --this.currentIndex
-        this.changeVideo()
-        this.play()
-        console.log(this.currentIndex, 0)
-        if (this.currentIndex === 0) {
-          prevBtn.style.cssText = 'color: rgba(255, 255, 255, 0.7)'
-          nextBtn.style.cssText = 'color: white'
-          // eslint-disable-next-line no-useless-return
-          return
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => {
+        console.log('prev')
+        if (this.currentIndex > 0) {
+          this.player.setAttribute('preload', 'none')
+          --this.currentIndex
+          this.changeVideo()
+          this.play()
+          console.log(this.currentIndex, 0)
+          if (this.currentIndex === 0) {
+            prevBtn.style.cssText = 'color: rgba(255, 255, 255, 0.7)'
+            nextBtn.style.cssText = 'color: white'
+            // eslint-disable-next-line no-useless-return
+            return
+          }
         }
-      }
-    })
+      })
+    }
   }
 
   // 下一个
   next () {
     const { nextBtn, prevBtn } = this.getEl
-    nextBtn.addEventListener('click', () => {
-      if (this.currentIndex < this.options.src.length - 1) {
-        this.player.setAttribute('preload', 'none')
-        ++this.currentIndex
-        this.changeVideo()
-        this.play()
-        prevBtn.style.cssText = 'color: white'
-        if (this.currentIndex === this.options.src.length - 1) {
-          nextBtn.style.cssText = 'color: rgba(255, 255, 255, 0.7)'
-          // eslint-disable-next-line no-useless-return
-          return
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => {
+        if (this.currentIndex < this.options.src.length - 1) {
+          this.player.setAttribute('preload', 'none')
+          ++this.currentIndex
+          this.events.emit('destory')
+          this.changeVideo()
+          this.play()
+          prevBtn.style.cssText = 'color: white'
+          if (this.currentIndex === this.options.src.length - 1) {
+            nextBtn.style.cssText = 'color: rgba(255, 255, 255, 0.7)'
+            // eslint-disable-next-line no-useless-return
+            return
+          }
         }
-      }
-    })
-    console.log(this.currentIndex)
-    console.log(this.options.src[this.currentIndex])
+      })
+    }
   }
 
   changeVideo () {

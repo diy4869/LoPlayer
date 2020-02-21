@@ -1,24 +1,24 @@
 /*
  * @Author: last order
  * @Date: 2019-08-15 20:36:02
- * @LastEditTime: 2020-02-16 15:18:11
+ * @LastEditTime: 2020-02-21 12:19:32
  */
 import LoPlayer from '@/js/index'
 
 const player = new LoPlayer('#player', {
+  // src: 'https://api.dogecloud.com/player/get.mp4?vcode=5ac682e6f8231991&userId=17&ext=.mp4',
   src: [
     // {
     //   src: 'http://7xlv47.com1.z0.glb.clouddn.com/4k.mp4',
     //   type: 'video/mp4'
     // },
     // {
-    //   src: 'http://7xlv47.com1.z0.glb.clouddn.com/xxx004.m3u8',
-    //   type: 'hls'
+    //   src: './assets/video/miku.webm'
     // },
-    // {
-    //   src: 'https://dash.akamaized.net/envivio/EnvivioDash3/manifest.mpd',
-    //   type: 'dash'
-    // },
+    {
+      src: 'https://dash.akamaized.net/envivio/EnvivioDash3/manifest.mpd',
+      type: 'dash'
+    },
     {
       src: 'https://api.dogecloud.com/player/get.mp4?vcode=5ac682e6f8231991&userId=17&ext=.mp4',
       type: 'video/mp4'
@@ -31,14 +31,16 @@ const player = new LoPlayer('#player', {
       src: 'https://pl.dogecloud.com/vcloud/hls/m3u8/117259?tm=1581582767&vtype=10&uid=450&sign=621ef96348062ef9c219a5590a171e5d&icp=0&durlimit=0&server=s4&vkey=989A0FEF77EF4FE19E136EF9BB818EF331319D0281B9523E0986CC37CE602723D3BA23F456F521DEC7BF7EC34B134E6ACF0FA6FC8ACB955F227E2A581A84E5BF2D8B136D35F1A715ECE110A701216CB8D8DD99A69228187B395BA6B7EDB5E2845AB13337F62FA3181F2F4BAFA8691AA5456EC4F046D9832C8C2DEB5F51E84574C9BC319AF1420EDBAB3A01450F2752DB&token=d18be8930473c28651f28202789bee20&ext=.m3u8',
       type: 'hls'
     }
-    // {
-    //   src: 'http://bangumi.xyz/video.mp4',
-    //   type: 'video/mp4'
-    // }
   ],
   autoPlay: false,
   loop: true
 })
-console.log(player)
 
+const loplayer = new LoPlayer('#LoPlayer', {
+  src: 'https://api.dogecloud.com/player/get.mp4?vcode=5ac682e6f8231991&userId=17&ext=.mp4',
+  autoPlay: false,
+  loop: true
+})
+console.log(player)
+console.log(loplayer)
 export default LoPlayer
