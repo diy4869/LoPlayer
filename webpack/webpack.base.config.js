@@ -1,7 +1,7 @@
 /*
  * @Author: last order
  * @Date: 2019-08-12 20:54:07
- * @LastEditTime : 2020-02-12 17:40:12
+ * @LastEditTime: 2020-03-04 13:39:36
  */
 const path = require('path')
 const env = require('./env')
@@ -71,6 +71,11 @@ module.exports = {
         test: /\.js$/,
         exclude: /node_modules/,
         use: ['babel-loader', 'eslint-loader']
+      },
+      {
+        test: /\.ts$/,
+        exclude: /node_modules/,
+        use: ['ts-loader']
       },
       {
         test: /\.art$/,

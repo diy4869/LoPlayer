@@ -1,7 +1,7 @@
 /*
  * @Author: last order
  * @Date: 2019-08-15 20:36:02
- * @LastEditTime: 2020-02-21 12:19:32
+ * @LastEditTime: 2020-03-22 18:26:24
  */
 import LoPlayer from '@/js/index'
 
@@ -36,10 +36,12 @@ const player = new LoPlayer('#player', {
   loop: true
 })
 
+console.log(1)
 const loplayer = new LoPlayer('#LoPlayer', {
   src: 'https://api.dogecloud.com/player/get.mp4?vcode=5ac682e6f8231991&userId=17&ext=.mp4',
   autoPlay: false,
-  loop: true
+  loop: true,
+  screenShot: true
 })
 console.log(player)
 console.log(loplayer)

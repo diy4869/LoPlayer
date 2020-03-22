@@ -1,3 +1,8 @@
+/*
+ * @Author: last order
+ * @Date: 2019-08-10 17:57:24
+ * @LastEditTime: 2020-03-22 18:34:52
+ */
 const webpack = require('webpack')
 const path = require('path')
 const env = require('./env')
@@ -5,17 +10,17 @@ const webpackBaseConfig = require('./webpack.base.config')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const merge = require('webpack-merge')
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin')
-console.log('__dirname:')
-console.log(__dirname)
+const address = require('address')
+const portFinder = require('portfinder')
 
 const devConfig = merge(webpackBaseConfig, {
   devServer: {
     contentBase: path.join(__dirname, 'src'),
     host: 'localhost',
-    port: 8080,
     hot: true,
     compress: true,
     noInfo: true,
+    quiet: true,
     overlay: {
       warnings: true,
       errors: false
@@ -33,12 +38,27 @@ const devConfig = merge(webpackBaseConfig, {
       filename: 'index.html',
       template: './src/page/index.html',
       inject: true
-    }),
-    new FriendlyErrorsWebpackPlugin({
-      compilationSuccessInfo: {
-        messages: ['项目成功启动，地址是localhost:8080']
-      }
     })
   ]
 })
+
+portFinder.getPortPromise({
+  port: 8080,
+  stopPort: 9000
+}).then(res => {
+  devConfig.devServer.port = res
+  devConfig.plugins.push(
+    new FriendlyErrorsWebpackPlugin({
+      compilationSuccessInfo: {
+        messages: [
+          ` 项目启动成功，地址是：\n
+                            http://localhost:${res}\n
+                            http://${address.ip()}:${res}
+          `
+        ]
+      }
+    })
+  )
+})
+
 module.exports = devConfig

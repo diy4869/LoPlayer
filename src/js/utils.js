@@ -1,3 +1,8 @@
+/*
+ * @Author: last order
+ * @Date: 2019-08-10 21:12:49
+ * @LastEditTime: 2020-02-29 16:28:58
+ */
 export const Format = (time) => {
   const date = {
     day: Math.floor(time / 86400),
@@ -10,18 +15,4 @@ export const Format = (time) => {
   const Second = second < 10 ? '0' + second : second
   const Minute = minute < 10 ? '0' + minute : minute
   return Hour + ':' + Minute + ':' + Second
-}
-export const reactive = (data) => {
-  /* eslint-disable no-new */
-  return new Proxy(data, {
-    get (target, property) {
-      console.log(target)
-      return target[property]
-    },
-    set (target, property, value) {
-      console.log('set到了属性变化：' + target[property], value)
-      target[property] = value
-      return target[property]
-    }
-  })
 }
