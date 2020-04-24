@@ -5,7 +5,7 @@
 import '~/css/iconfont.css'
 import '~/css/player.scss'
 import Template from '@/js/template'
-import Events from '@/js/Events'
+import Events from '@/js/events'
 import { Format } from '@/js/utils'
 import Hls from 'hls.js'
 import dashjs from 'dashjs'

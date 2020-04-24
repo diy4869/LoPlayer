@@ -19,7 +19,7 @@ export default class Events {
       if (!this.events[eventName]) {
         this.events[eventName] = []
       }
-      this.events[eventName].push(callback)
+      this.events[eventName] = [callback, ...this.events[eventName]]
     }
     // this.emit(eventName)
   }

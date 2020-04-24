@@ -6,8 +6,8 @@
 # LoPlayer
 一个简易的播放器，支持vue、react等
 
-![效果图](https://github.com/diy4869/LoPlayer/blob/master/example/02.png)
-
+![不带切换的例子](https://github.com/diy4869/LoPlayer/blob/master/example/01.png)
+![带切换的例子](https://github.com/diy4869/LoPlayer/blob/master/example/02.png)
 ## API文档
 
 [LoPlayer](https://diy4869.github.io/LoPlayer-Docs)
@@ -37,6 +37,7 @@
 - 快捷键
 - 屏幕截图
 - 播放速度调整
+- ts支持
 
 ## 计划
 - [ ] 清晰度切换 (看情况，没资源进行测试)

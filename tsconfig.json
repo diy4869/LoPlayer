@@ -1,0 +1,25 @@
+{
+    "include": [
+      "src/**/*",
+    ],
+    "compilerOptions": {
+      "paths": {
+        "@src*": ["./src/*"],
+      },
+      "strict": true,
+      "baseUrl": ".",
+      "module": "esnext",
+      "target": "es5",
+      "lib": ["dom", "esnext"],
+      "strictNullChecks": true,
+      "esModuleInterop": true,
+      "experimentalDecorators": true,
+      "noUnusedParameters": true,
+      "noUnusedLocals": true,
+      "noImplicitAny": true,
+      "skipLibCheck": true,
+      "moduleResolution": "node"
+    },
+    "exclude": ["node_modules"]
+  }
+  
