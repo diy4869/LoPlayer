@@ -1,7 +1,7 @@
 /*
  * @Author: last order
  * @Date: 2019-08-12 20:54:07
- * @LastEditTime: 2020-03-04 13:39:36
+ * @LastEditTime: 2020-05-01 12:10:41
  */
 const path = require('path')
 const env = require('./env')
@@ -13,7 +13,7 @@ console.log(path.join(__dirname, '../src'))
 module.exports = {
   mode: env,
   entry: {
-    main: './src/index.js'
+    main: './src/index.ts'
   },
   output: {
     path: path.join(__dirname, '../dist'),
@@ -92,7 +92,7 @@ module.exports = {
     // false可以不带扩展
     enforceExtension: false,
     // 自动解析确定的扩展
-    extensions: ['.js']
+    extensions: ['.ts', '.js']
   },
   plugins: [
     new webpack.DefinePlugin({

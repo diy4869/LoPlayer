@@ -14,6 +14,7 @@
   "dependencies": {
     "@babel/plugin-proposal-private-methods": "^7.8.3",
     "@babel/runtime": "^7.8.4",
+    "@types/hls.js": "^0.12.6",
     "art-template": "^4.13.2",
     "core-js": "^3.6.4"
   },

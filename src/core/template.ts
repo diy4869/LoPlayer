@@ -1,19 +1,54 @@
 /*
  * @Author: last order
  * @Date: 2019-08-13 16:51:16
- * @LastEditTime: 2020-02-21 12:29:30
+ * @LastEditTime: 2020-05-01 13:59:37
  */
-import player from '../template/player.art'
+import player from '@/template/player.art'
+
+interface TemplateOptions {
+  container: HTMLElement,
+  switch: boolean,
+  screenShot: boolean,
+  speed: number[],
+  currentIndex: number,
+  currentTime: string
+}
 
 export default class Template {
-  constructor (options) {
+  container: HTMLElement
+  playerBox!: Element
+  nextBtn!: Element
+  options!: any
+  playBtn!: Element
+  prevBtn!: Element
+  player!: Element
+  currentTime!: Element
+  controlBox!: Element
+  screenshot!: Element
+  settingPanel!: Element
+  setting!: Element
+  speedPanel!: Element
+  logo!: Element
+  volumeBtn!: Element
+  loading!: Element
+  fullScreen!: Element
+  volumeBar!: Element
+  volumeProgress!: Element
+  volumeLine!: Element
+  volumeBox!: Element
+  videoProgressBar!: Element
+  preload!: Element
+  videoProgressLine!: Element
+  videoProgress!: Element
+  duration!: Element
+
+  constructor (options: TemplateOptions) {
     this.container = options.container
     this.options = options
     this.init()
   }
 
   init () {
-    console.log(this.options)
     this.container.innerHTML = player({
       options: this.options
     })

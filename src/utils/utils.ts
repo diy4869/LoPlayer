@@ -1,9 +1,9 @@
 /*
  * @Author: last order
  * @Date: 2019-08-10 21:12:49
- * @LastEditTime: 2020-02-29 16:28:58
+ * @LastEditTime: 2020-05-01 12:59:11
  */
-export const Format = (time) => {
+export const Format = (time: number): string => {
   const date = {
     day: Math.floor(time / 86400),
     second: Math.floor(time % 60),
@@ -14,5 +14,6 @@ export const Format = (time) => {
   const Hour = hour < 10 ? '0' + hour : hour
   const Second = second < 10 ? '0' + second : second
   const Minute = minute < 10 ? '0' + minute : minute
+
   return Hour + ':' + Minute + ':' + Second
 }

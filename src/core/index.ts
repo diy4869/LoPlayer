@@ -1,22 +1,49 @@
-/**
- * @author last order
- * @description LoPlayer
- */
 import '~/css/iconfont.css'
 import '~/css/player.scss'
-import Template from '@/js/template'
-import Events from '@/js/events'
-import { Format } from '@/js/utils'
+import Template from '@/core/template'
+import Events from '@/core/events'
+import { Format } from '@/utils/utils'
 import Hls from 'hls.js'
 import dashjs from 'dashjs'
 
+interface SourceOptions {
+  src: string,
+  type?: string  
+}
+
+type PanelOptions = {
+  [propName in number | string]: any
+}
+
+interface LoPlayerOptions {
+  src: string | SourceOptions[],
+  autoPlay?: boolean,
+  loop?: boolean,
+  screenShot?: boolean,
+  speed?: number[],
+  defaultSpeed?: number
+}
+
 export default class LoPlayer {
-  constructor (el, options) {
+  el: HTMLElement
+  options: any
+  playStatus: boolean
+  loading: boolean
+  player!: HTMLVideoElement
+  currentTime: string
+  duration: string
+  volumeIcon: string
+  currentIndex: number
+  screenShot: boolean
+  loop: boolean
+  speed: number[]
+  switch: boolean
+  getEl: any
+  constructor (el: HTMLElement, options: LoPlayerOptions) {
     this.el = el
     this.options = options
     this.playStatus = false
     this.loading = true
-    this.player = undefined
     this.currentTime = '00:00:00'
     this.duration = '00:00:00'
     this.volumeIcon = ''
@@ -24,12 +51,11 @@ export default class LoPlayer {
     this.screenShot = false
     this.loop = true
     this.speed = [0.25, 0.5, 1, 1.25, 1.5, 1.75, 2]
-    this.events = new Events()
     this.switch = typeof this.options.src !== 'string'
 
     // this.defaultSpeed = 1
     this.getEl = new Template({
-      container: document.querySelectorAll(this.el)[0],
+      container: this.el,
       switch: this.switch,
       screenShot: this.options.screenShot,
       speed: this.speed,
@@ -41,14 +67,13 @@ export default class LoPlayer {
 
   init () {
     console.log(this)
-    if (!document.querySelectorAll(this.el)[0]) {
+    if (!this.el) {
       throw new Error(this.el + ' is not found')
     } else {
       const { player } = this.getEl
       this.player = player
-      this.events = new Events({
-        container: this.player
-      })
+      console.log(player.type)
+      this.events = new Events(this.player)
       this.showLoading(this.loading)
       this.bindEvent()
       this.mediaSourceExtensions()
@@ -75,9 +100,6 @@ export default class LoPlayer {
     }
   }
 
-  on (event, fn) {
-    this.events.on(event, fn)
-  }
 
   getCurrentTime () {
     return this.player.currentTime
@@ -110,7 +132,7 @@ export default class LoPlayer {
         const link = document.createElement('a')
         const ctx = canvas.getContext('2d')
         document.body.appendChild(canvas)
-        ctx.drawImage(this.player, 0, 0, canvas.width, canvas.height)
+        ctx!.drawImage(this.player, 0, 0, canvas.width, canvas.height)
         const res = canvas.toDataURL('image/png')
         link.setAttribute('download', '下载图片')
         console.log(link)
@@ -155,7 +177,7 @@ export default class LoPlayer {
   }
 
   // 获取视频格式
-  getExt (str) {
+  getExt (str: string) {
     if (typeof str !== 'string') throw TypeError(`${str} is not a string`)
 
     const start = str.lastIndexOf('.')
@@ -169,7 +191,7 @@ export default class LoPlayer {
   mediaSourceExtensions () {
     this.player.load()
     const videoSource = this.options.src
-    let playerURL, ext, type
+    let playerURL, ext
 
     if (videoSource) {
       if (typeof this.options.src === 'string') {
@@ -177,11 +199,8 @@ export default class LoPlayer {
         ext = this.getExt(playerURL)
         this.player.src = playerURL
       } else {
-        if (type) this.player.type = type
         playerURL = videoSource[this.currentIndex].src
-        type = videoSource[this.currentIndex].type
         ext = this.getExt(playerURL)
-        this.player.type = videoSource[this.currentIndex].type
         this.player.src = playerURL
       }
     }
@@ -203,16 +222,13 @@ export default class LoPlayer {
             })
           } else if (this.player.canPlayType('application/vnd.apple.mpegurl')) {
             this.player.src = playerURL
-            this.on('canplay', () => {
-              this.play()
-            })
           }
         }
         break
       case 'mpd':
         console.log('dash')
         if (dashjs) {
-          const player = new dashjs.MediaPlayer().create()
+          const player = dashjs.MediaPlayer().create()
           // player.reset()
           player.initialize(this.player, playerURL, false)
           // player.reset()
@@ -232,7 +248,7 @@ export default class LoPlayer {
   }
 
   bindEvent () {
-    const { playBtn, volumeBtn, fullScreen } = this.getEl
+    const { playBtn, volumeBtn, fullScreen, screenshot } = this.getEl
     playBtn.addEventListener('click', () => {
       this.toggle()
     })
@@ -242,11 +258,16 @@ export default class LoPlayer {
     fullScreen.addEventListener('click', () => {
       this.fullScreen()
     })
+    if (this.screenShot) {
+      screenshot.addEventListener('click', () => {
+        this.screenshot()
+      })
+    }
   }
 
   // 快捷键
   shortcutKey () {
-    window.onkeydown = ev => {
+    window.onkeydown = (ev: KeyboardEvent) => {
       /**
        * 32 空格播放暂停
        * 70 F 进入和退出全屏
@@ -370,7 +391,7 @@ export default class LoPlayer {
   changeVideo () {
     const { currentTime, preload, videoProgressBar, videoProgress } = this.getEl
     this.pause()
-    this.showLoading(this.showLoading)
+    this.showLoading(true)
     this.mediaSourceExtensions()
     console.log(this.player)
     this.currentTime = '00:00:00'
@@ -388,9 +409,6 @@ export default class LoPlayer {
     const { currentTime, videoProgressLine, videoProgressBar, videoProgress } = this.getEl
     const videoProgressLineWidth = videoProgressLine.offsetWidth
     const videoProgressBarWidth = videoProgressBar.offsetWidth
-    this.on('timeupdate', () => {
-      console.log(1)
-    })
     this.player.addEventListener('timeupdate', () => {
       this.preload()
       this.currentTime = Format(this.player.currentTime)
@@ -406,7 +424,7 @@ export default class LoPlayer {
 
       if (Math.floor(position) === 0) max = 0
 
-      this.currentTime = Format(this.player.currentTime, false)
+      this.currentTime = Format(this.player.currentTime)
       videoProgress.style.width = position + 'px'
       videoProgressBar.style.left = max + 'px'
 
@@ -421,7 +439,7 @@ export default class LoPlayer {
     })
   }
 
-  seekTo (time) {
+  seekTo (time: number) {
     this.player.currentTime = time
     const { videoProgress, videoProgressLine, videoProgressBar } = this.getEl
     const position = (this.player.currentTime / this.player.duration) * videoProgressLine.offsetWidth
@@ -433,8 +451,7 @@ export default class LoPlayer {
   // 点击跳转
   jump () {
     const { videoProgressLine } = this.getEl
-    videoProgressLine.addEventListener('click', (event) => {
-      const e = window.event || event
+    videoProgressLine.addEventListener('click', (e: MouseEvent) => {
       const position = e.offsetX
       const currentTime = position / videoProgressLine.offsetWidth * this.player.duration
       this.seekTo(currentTime)
@@ -493,7 +510,7 @@ export default class LoPlayer {
 
   // 退出全屏
   ExitFullscreen () {
-    const doc = document
+    const doc = document as Document
     if (doc.exitFullscreen) {
       doc.exitFullscreen()
     } else if (doc.mozCancelFullScreen) {
@@ -567,7 +584,7 @@ export default class LoPlayer {
     }
   }
 
-  setVolume (volume) {
+  setVolume (volume: number) {
     console.log(volume)
     this.player.volume = volume
 
@@ -583,8 +600,7 @@ export default class LoPlayer {
   volume () {
     const { volumeLine, volumeBar, volumeProgress } = this.getEl
     console.log(volumeProgress)
-    volumeLine.addEventListener('click', (event) => {
-      const e = window.event || event
+    volumeLine.addEventListener('click', (e: MouseEvent) => {
       let position = e.offsetX
       if ((position - volumeBar.offsetWidth) <= 0) {
         position = 0
@@ -612,7 +628,7 @@ export default class LoPlayer {
 
   showSetting () {
     const { setting, settingPanel, speedPanel } = this.getEl
-    const panel = {
+    const panel: PanelOptions = {
       0: {
         show: false,
         name: 'speedPanel'
