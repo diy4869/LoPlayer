@@ -1,15 +1,14 @@
 /*
  * @Author: last order
  * @Date: 2019-08-12 20:54:07
- * @LastEditTime: 2020-05-01 12:10:41
+ * @LastEditTime: 2020-05-02 19:37:13
  */
 const path = require('path')
 const env = require('./env')
-const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const webpack = require('webpack')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const TerserPlugin = require('terser-webpack-plugin')
 
-console.log(__dirname)
-console.log(path.join(__dirname, '../src'))
 module.exports = {
   mode: env,
   entry: {
@@ -17,7 +16,9 @@ module.exports = {
   },
   output: {
     path: path.join(__dirname, '../dist'),
-    filename: '[name].[hash:8].js'
+    filename: '[name].[hash:8].js',
+    library: 'LoPlayer',
+    libraryTarget: 'umd'
   },
   module: {
     /**
@@ -54,7 +55,7 @@ module.exports = {
         ]
       },
       {
-        test: /\.(eot|ttf|woff|woff2)/,
+        test: /\.(eot|ttf|woff|woff2|svg)/,
         use: [{
           loader: 'file-loader',
           options: {
@@ -63,10 +64,10 @@ module.exports = {
           }
         }]
       },
-      {
-        test: /\.svg$/,
-        loader: 'svg-inline-loader'
-      },
+      // {
+      //   test: /\.svg$/,
+      //   loader: 'svg-inline-loader'
+      // },
       {
         test: /\.js$/,
         exclude: /node_modules/,
@@ -93,6 +94,21 @@ module.exports = {
     enforceExtension: false,
     // 自动解析确定的扩展
     extensions: ['.ts', '.js']
+  },
+  optimization: {
+    minimizer: [
+      new TerserPlugin({
+        parallel: 8,
+        sourceMap: env === 'development',
+        terserOptions: {
+          cache: true,
+          compress: {
+            drop_debugger: env === 'production',
+            drop_console: env === 'production'
+          }
+        }
+      })
+    ]
   },
   plugins: [
     new webpack.DefinePlugin({

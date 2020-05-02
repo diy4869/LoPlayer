@@ -1,7 +1,7 @@
 /*
  * @Author: last order
  * @Date: 2019-08-10 21:12:49
- * @LastEditTime: 2020-05-01 12:59:11
+ * @LastEditTime: 2020-05-02 14:21:04
  */
 export const Format = (time: number): string => {
   const date = {
@@ -16,4 +16,21 @@ export const Format = (time: number): string => {
   const Minute = minute < 10 ? '0' + minute : minute
 
   return Hour + ':' + Minute + ':' + Second
+}
+
+export const base64ToBlob = (dataurl: string) => {
+  let arr = dataurl.split(',')
+  let _arr = arr[1].substring(0, arr[1].length - 2)
+  let mime = arr[0].match(/:(.*?);/) as string[]
+  let bstr = atob(_arr)
+  let n = bstr.length
+  let u8arr = new Uint8Array(n)
+
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n)
+  }
+  
+  return new Blob([u8arr], {
+    type: mime[1]
+  })
 }

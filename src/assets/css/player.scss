@@ -1,5 +1,6 @@
 @import './theme.scss';
 @import './reset.css';
+@import './iconfont.css';
 
 .playerBox:hover .controlBox {
   transform: translateY(0%);
@@ -32,7 +33,7 @@
     .icon-loading {
       animation: loading 1.5s linear infinite;
       display: inline-block;
-      color: $primaryColor;
+      color: white;
     }
     @keyframes loading {
       from {

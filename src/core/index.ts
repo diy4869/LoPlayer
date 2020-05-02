@@ -1,8 +1,7 @@
-import '~/css/iconfont.css'
-import '~/css/player.scss'
+import '../assets/css/player.scss'
 import Template from '@/core/template'
 import Events from '@/core/events'
-import { Format } from '@/utils/utils'
+import { Format, base64ToBlob } from '@/utils/utils'
 import Hls from 'hls.js'
 import dashjs from 'dashjs'
 
@@ -20,8 +19,7 @@ interface LoPlayerOptions {
   autoPlay?: boolean,
   loop?: boolean,
   screenShot?: boolean,
-  speed?: number[],
-  defaultSpeed?: number
+  speed?: number[]
 }
 
 export default class LoPlayer {
@@ -39,6 +37,8 @@ export default class LoPlayer {
   speed: number[]
   switch: boolean
   getEl: any
+  events?: Events
+
   constructor (el: HTMLElement, options: LoPlayerOptions) {
     this.el = el
     this.options = options
@@ -50,9 +50,8 @@ export default class LoPlayer {
     this.currentIndex = 0
     this.screenShot = false
     this.loop = true
-    this.speed = [0.25, 0.5, 1, 1.25, 1.5, 1.75, 2]
+    this.speed = this.options.speed ?? [0.25, 0.5, 1, 1.25, 1.5, 1.75, 2]
     this.switch = typeof this.options.src !== 'string'
-
     // this.defaultSpeed = 1
     this.getEl = new Template({
       container: this.el,
@@ -100,6 +99,25 @@ export default class LoPlayer {
     }
   }
 
+  bindEvent () {
+    const { playBtn, volumeBtn, fullScreen, screenshot } = this.getEl
+    playBtn.addEventListener('click', () => {
+      this.toggle()
+    })
+    volumeBtn.addEventListener('click', () => {
+      this.muted()
+    })
+    fullScreen.addEventListener('click', () => {
+      this.fullScreen()
+    })
+    console.log(screenshot)
+    if (screenshot) {
+      screenshot.addEventListener('click', () => {
+        console.log(1)
+        this.screenshot()
+      })
+    }
+  }
 
   getCurrentTime () {
     return this.player.currentTime
@@ -122,25 +140,23 @@ export default class LoPlayer {
     }
   }
 
-  screenshot () {
-    const { screenshot } = this.getEl
-    if (screenshot) {
-      screenshot.addEventListener('click', () => {
-        const canvas = document.createElement('canvas')
-        canvas.width = this.player.offsetWidth
-        canvas.height = this.player.offsetHeight
-        const link = document.createElement('a')
-        const ctx = canvas.getContext('2d')
-        document.body.appendChild(canvas)
-        ctx!.drawImage(this.player, 0, 0, canvas.width, canvas.height)
-        const res = canvas.toDataURL('image/png')
-        link.setAttribute('download', '下载图片')
-        console.log(link)
-        link.setAttribute('href', res)
-        document.body.appendChild(link)
-        link.click()
-      })
-    }
+  screenshot (filename: string = 'download') {
+    const canvas = document.createElement('canvas')
+    canvas.width = this.player.offsetWidth
+    canvas.height = this.player.offsetHeight
+    const link = document.createElement('a')
+    const ctx = canvas.getContext('2d')
+    document.body.appendChild(canvas)
+    ctx!.drawImage(this.player, 0, 0, canvas.width, canvas.height)
+    const res = canvas.toDataURL('image/png')
+    const blob = base64ToBlob(res)
+    const blobURL = URL.createObjectURL(blob)
+    console.log(blobURL)
+    link.setAttribute('href', blobURL)
+    link.setAttribute('download', filename)
+    document.body.appendChild(link)
+
+    return blobURL
   }
 
   error () {
@@ -233,10 +249,6 @@ export default class LoPlayer {
           player.initialize(this.player, playerURL, false)
           // player.reset()
           // dashjs.MediaPlayerEvents()
-          this.events.on('destory', () => {
-            console.log('执行了')
-            player.reset()
-          })
         }
         break
       default:
@@ -244,24 +256,6 @@ export default class LoPlayer {
         this.player.load()
         this.player.src = playerURL
         break
-    }
-  }
-
-  bindEvent () {
-    const { playBtn, volumeBtn, fullScreen, screenshot } = this.getEl
-    playBtn.addEventListener('click', () => {
-      this.toggle()
-    })
-    volumeBtn.addEventListener('click', () => {
-      this.muted()
-    })
-    fullScreen.addEventListener('click', () => {
-      this.fullScreen()
-    })
-    if (this.screenShot) {
-      screenshot.addEventListener('click', () => {
-        this.screenshot()
-      })
     }
   }
 
@@ -374,7 +368,6 @@ export default class LoPlayer {
         if (this.currentIndex < this.options.src.length - 1) {
           this.player.setAttribute('preload', 'none')
           ++this.currentIndex
-          this.events.emit('destory')
           this.changeVideo()
           this.play()
           prevBtn.style.cssText = 'color: white'
@@ -409,6 +402,7 @@ export default class LoPlayer {
     const { currentTime, videoProgressLine, videoProgressBar, videoProgress } = this.getEl
     const videoProgressLineWidth = videoProgressLine.offsetWidth
     const videoProgressBarWidth = videoProgressBar.offsetWidth
+
     this.player.addEventListener('timeupdate', () => {
       this.preload()
       this.currentTime = Format(this.player.currentTime)
@@ -510,14 +504,16 @@ export default class LoPlayer {
 
   // 退出全屏
   ExitFullscreen () {
-    const doc = document as Document
-    if (doc.exitFullscreen) {
-      doc.exitFullscreen()
-    } else if (doc.mozCancelFullScreen) {
-      doc.mozCancelFullScreen()
-    } else if (doc.webkitCancelFullScreen) {
-      doc.webkitCancelFullScreen()
-    }
+    document.exitFullscreen()
+
+    // const doc = document as Document
+    // if (doc.exitFullscreen) {
+    //   doc.exitFullscreen()
+    // } else if (doc.mozCancelFullScreen) {
+    //   doc.mozCancelFullScreen()
+    // } else if (doc.webkitCancelFullScreen) {
+    //   doc.webkitCancelFullScreen()
+    // }
   }
 
   // 全屏

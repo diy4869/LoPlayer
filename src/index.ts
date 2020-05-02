@@ -1,9 +1,10 @@
 /*
  * @Author: last order
  * @Date: 2019-08-15 20:36:02
- * @LastEditTime: 2020-05-01 14:03:12
+ * @LastEditTime: 2020-05-02 18:38:50
  */
 import LoPlayer from './core/index'
+// const miku = require('./assets/video/miku.webm')
 
 const playerContainer = document.getElementById('player')
 
@@ -12,16 +13,20 @@ if (playerContainer) {
     // src: 'https://api.dogecloud.com/player/get.mp4?vcode=5ac682e6f8231991&userId=17&ext=.mp4',
     src: [
       // {
+      //   src: 'https://pl.dogecloud.com/vcloud/hls/m3u8/117256?tm=1581569593&vtype=10&uid=450&sign=6eb1695366e23beb18f5095172598a95&icp=0&durlimit=0&server=s4&vkey=6595DA30F5D09E1FF19D895C42C66097100F753EF88B4F5876F222AD90D1DECD98F43CE79C57BCF95F610FB226616D2F4FC699DDF869E0B7CBAEF1D7E2953A1B2777EF091229E095CC5DEC84C279725179D496FB32E247BBCF9C346954855F186CB33A638302E56AA1F5391665BA8A786420B1CB2E0919B598927B080362162A6E12F16AC86B58229A906BFECCB6B1A1&token=f506040a36b56df6142a0824117c0200&ext=.m3u8',
+      //   type: 'hls'
+      // },
+      // {
       //   src: 'http://7xlv47.com1.z0.glb.clouddn.com/4k.mp4',
       //   type: 'video/mp4'
       // },
       // {
-      //   src: './assets/video/miku.webm'
+      //   src: miku
       // },
-      {
-        src: 'https://dash.akamaized.net/envivio/EnvivioDash3/manifest.mpd',
-        type: 'dash'
-      },
+      // {
+      //   src: 'https://dash.akamaized.net/envivio/EnvivioDash3/manifest.mpd',
+      //   type: 'dash'
+      // },
       {
         src: 'https://api.dogecloud.com/player/get.mp4?vcode=5ac682e6f8231991&userId=17&ext=.mp4',
         type: 'video/mp4'
@@ -35,8 +40,10 @@ if (playerContainer) {
         type: 'hls'
       }
     ],
+    speed: [1, 2, 3],
     autoPlay: false,
-    loop: true
+    loop: true,
+    screenShot: true
   })
 }
 
