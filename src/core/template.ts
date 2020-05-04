@@ -1,14 +1,14 @@
 /*
  * @Author: last order
  * @Date: 2019-08-13 16:51:16
- * @LastEditTime: 2020-05-01 13:59:37
+ * @LastEditTime: 2020-05-04 13:43:31
  */
 import player from '@/template/player.art'
 
 interface TemplateOptions {
   container: HTMLElement,
   switch: boolean,
-  screenShot: boolean,
+  screenShot?: boolean,
   speed: number[],
   currentIndex: number,
   currentTime: string
@@ -86,3 +86,4 @@ export default class Template {
     }
   }
 }
+// 

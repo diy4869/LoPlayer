@@ -23,9 +23,9 @@
         </div>
         <!-- 时间显示 -->
         <div class="duration">
-          <span>00:00:00</span>
+          <span>00:00</span>
           <span>/</span>
-          <span>00:00:00</span>
+          <span>00:00</span>
         </div>
       </div>
       <div class="right">
@@ -52,10 +52,6 @@
   <ul class="setting-panel">
     <li>
       <span>播放速度</span>
-      <span class="icon iconfont icon-right"></span>
-    </li>
-    <li>
-      <span>播放模式</span>
       <span class="icon iconfont icon-right"></span>
     </li>
   </ul>

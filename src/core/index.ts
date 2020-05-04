@@ -4,62 +4,46 @@ import Events from '@/core/events'
 import { Format, base64ToBlob } from '@/utils/utils'
 import Hls from 'hls.js'
 import dashjs from 'dashjs'
-
-interface SourceOptions {
-  src: string,
-  type?: string  
-}
+import LoPlayerConfig, { LoPlayerOptions } from '@/config/index'
 
 type PanelOptions = {
   [propName in number | string]: any
 }
 
-interface LoPlayerOptions {
-  src: string | SourceOptions[],
-  autoPlay?: boolean,
-  loop?: boolean,
-  screenShot?: boolean,
-  speed?: number[]
-}
 
 export default class LoPlayer {
   el: HTMLElement
-  options: any
+  options: LoPlayerOptions
   playStatus: boolean
   loading: boolean
   player!: HTMLVideoElement
-  currentTime: string
-  duration: string
+  currentTime: number
+  duration: number
   volumeIcon: string
   currentIndex: number
-  screenShot: boolean
-  loop: boolean
   speed: number[]
   switch: boolean
   getEl: any
   events?: Events
 
-  constructor (el: HTMLElement, options: LoPlayerOptions) {
+  constructor (el: HTMLElement, options: LoPlayerOptions = LoPlayerConfig) {
     this.el = el
     this.options = options
     this.playStatus = false
     this.loading = true
-    this.currentTime = '00:00:00'
-    this.duration = '00:00:00'
+    this.currentTime = 0
+    this.duration = 0
     this.volumeIcon = ''
     this.currentIndex = 0
-    this.screenShot = false
-    this.loop = true
     this.speed = this.options.speed ?? [0.25, 0.5, 1, 1.25, 1.5, 1.75, 2]
     this.switch = typeof this.options.src !== 'string'
-    // this.defaultSpeed = 1
     this.getEl = new Template({
       container: this.el,
       switch: this.switch,
       screenShot: this.options.screenShot,
       speed: this.speed,
       currentIndex: this.currentIndex,
-      currentTime: this.currentTime
+      currentTime: Format(this.currentTime)
     })
     this.init()
   }
@@ -69,9 +53,8 @@ export default class LoPlayer {
     if (!this.el) {
       throw new Error(this.el + ' is not found')
     } else {
-      const { player } = this.getEl
+      const { player, prevBtn, nextBtn } = this.getEl
       this.player = player
-      console.log(player.type)
       this.events = new Events(this.player)
       this.showLoading(this.loading)
       this.bindEvent()
@@ -88,21 +71,40 @@ export default class LoPlayer {
       this.volumeMove()
       this.prev()
       this.next()
-      this.screenshot()
       this.setSpeed()
       this.showSetting()
-      // this.setSpeed(this.defaultSpeed)
       this.contextmenu()
       this.error()
       this.autoPlay()
       // this.fullScreen()
+
+      if (typeof this.options.src !== 'string') {
+        if (this.currentIndex === 0) {
+          prevBtn.style.cssText = 'color: rgba(255, 255, 255, 0.7)'
+          nextBtn.style.cssText = 'color: white'
+        }
+        if (this.currentIndex === this.options.src.length - 1) {
+          nextBtn.style.cssText = 'color: rgba(255, 255, 255, 0.7)'
+        }
+      }
+      if (this.options.loop) this.setLoop(true)
     }
   }
 
+  setLoop (loop: true) {
+    if (loop) {
+      this.player.setAttribute('loop', 'loop')
+    } else {
+      this.player.removeAttribute('loop')
+    }
+  }
   bindEvent () {
-    const { playBtn, volumeBtn, fullScreen, screenshot } = this.getEl
+    const { playBtn, volumeBtn, fullScreen, screenshot, logo } = this.getEl
     playBtn.addEventListener('click', () => {
       this.toggle()
+    })
+    logo.addEventListener('click', () => {
+      this.play()
     })
     volumeBtn.addEventListener('click', () => {
       this.muted()
@@ -110,21 +112,12 @@ export default class LoPlayer {
     fullScreen.addEventListener('click', () => {
       this.fullScreen()
     })
-    console.log(screenshot)
     if (screenshot) {
       screenshot.addEventListener('click', () => {
         console.log(1)
         this.screenshot()
       })
     }
-  }
-
-  getCurrentTime () {
-    return this.player.currentTime
-  }
-
-  getDuration () {
-    return this.player.duration
   }
 
   // 右键
@@ -146,17 +139,18 @@ export default class LoPlayer {
     canvas.height = this.player.offsetHeight
     const link = document.createElement('a')
     const ctx = canvas.getContext('2d')
+    // canvas.style.display = 'none'
     document.body.appendChild(canvas)
     ctx!.drawImage(this.player, 0, 0, canvas.width, canvas.height)
     const res = canvas.toDataURL('image/png')
     const blob = base64ToBlob(res)
     const blobURL = URL.createObjectURL(blob)
-    console.log(blobURL)
     link.setAttribute('href', blobURL)
     link.setAttribute('download', filename)
     document.body.appendChild(link)
 
-    return blobURL
+    link.click()
+    // return blobURL
   }
 
   error () {
@@ -206,20 +200,10 @@ export default class LoPlayer {
   // 检测视频格式是否支持
   mediaSourceExtensions () {
     this.player.load()
-    const videoSource = this.options.src
-    let playerURL, ext
+    const playerURL = typeof this.options.src === 'string' ? this.options.src : this.options.src[this.currentIndex].src
+    const ext = this.getExt(playerURL)
 
-    if (videoSource) {
-      if (typeof this.options.src === 'string') {
-        playerURL = videoSource
-        ext = this.getExt(playerURL)
-        this.player.src = playerURL
-      } else {
-        playerURL = videoSource[this.currentIndex].src
-        ext = this.getExt(playerURL)
-        this.player.src = playerURL
-      }
-    }
+    this.player.src = playerURL
 
     switch (ext) {
       case 'm3u8':
@@ -247,6 +231,7 @@ export default class LoPlayer {
           const player = dashjs.MediaPlayer().create()
           // player.reset()
           player.initialize(this.player, playerURL, false)
+          player.reset()
           // player.reset()
           // dashjs.MediaPlayerEvents()
         }
@@ -280,6 +265,10 @@ export default class LoPlayer {
         case 77:
           this.muted()
           break
+        case 122:
+          // this.options.fullScreen = false
+          // this.fullScreen()
+          break
         default:
           console.log('无效按键：' + ev.keyCode)
           break
@@ -290,10 +279,11 @@ export default class LoPlayer {
   // 缓存
   preload () {
     const { videoProgressLine, preload } = this.getEl
+
     if (this.player && this.player.buffered) {
       const len = this.player.buffered.length - 1
       if (len >= 0 && len < 2) {
-        const end = this.player.buffered.end(0)
+        const end = this.player.buffered.end(len)
         const position = (end / this.player.duration) * videoProgressLine.offsetWidth
         preload.style.width = position.toFixed(2) + 'px'
       }
@@ -305,9 +295,9 @@ export default class LoPlayer {
     const { duration } = this.getEl
     this.player.addEventListener('canplay', () => {
       duration.innerHTML = Format(this.player.duration)
-      this.preload()
       this.loading = false
       this.showLoading(this.loading)
+      this.preload()
       this.showLogo()
     })
   }
@@ -342,13 +332,11 @@ export default class LoPlayer {
     const { prevBtn, nextBtn } = this.getEl
     if (prevBtn) {
       prevBtn.addEventListener('click', () => {
-        console.log('prev')
         if (this.currentIndex > 0) {
           this.player.setAttribute('preload', 'none')
           --this.currentIndex
           this.changeVideo()
           this.play()
-          console.log(this.currentIndex, 0)
           if (this.currentIndex === 0) {
             prevBtn.style.cssText = 'color: rgba(255, 255, 255, 0.7)'
             nextBtn.style.cssText = 'color: white'
@@ -382,13 +370,15 @@ export default class LoPlayer {
   }
 
   changeVideo () {
-    const { currentTime, preload, videoProgressBar, videoProgress } = this.getEl
+    const { currentTime, duration, preload, videoProgressBar, videoProgress } = this.getEl
     this.pause()
     this.showLoading(true)
     this.mediaSourceExtensions()
     console.log(this.player)
-    this.currentTime = '00:00:00'
-    currentTime.innerHTML = this.currentTime
+    this.currentTime = 0
+    this.duration = 0
+    duration.innerHTML = Format(this.duration)
+    currentTime.innerHTML = Format(this.currentTime)
     videoProgress.style.width = 0 + 'px'
     videoProgressBar.style.left = 0 + 'px'
     preload.style.width = 0 + 'px'
@@ -405,20 +395,19 @@ export default class LoPlayer {
 
     this.player.addEventListener('timeupdate', () => {
       this.preload()
-      this.currentTime = Format(this.player.currentTime)
-      currentTime.innerHTML = this.currentTime
+      this.currentTime = this.player.currentTime
+      currentTime.innerHTML = Format(this.player.currentTime)
 
       const videoProgressBarLeft = videoProgressBar.offsetLeft
       const position = (this.player.currentTime / this.player.duration) * videoProgressLineWidth
       let max = position - 1
-
       if (videoProgressBarLeft >= (videoProgressLineWidth - videoProgressBarWidth)) {
         max = videoProgressLineWidth - videoProgressBarWidth
       }
 
       if (Math.floor(position) === 0) max = 0
 
-      this.currentTime = Format(this.player.currentTime)
+      currentTime.innerHTML = Format(this.player.currentTime)
       videoProgress.style.width = position + 'px'
       videoProgressBar.style.left = max + 'px'
 
@@ -435,6 +424,7 @@ export default class LoPlayer {
 
   seekTo (time: number) {
     this.player.currentTime = time
+    this.currentTime = time
     const { videoProgress, videoProgressLine, videoProgressBar } = this.getEl
     const position = (this.player.currentTime / this.player.duration) * videoProgressLine.offsetWidth
 
@@ -537,9 +527,22 @@ export default class LoPlayer {
   // 设置播放速度
   setSpeed () {
     const { speedPanel } = this.getEl
-    for (let i = 0; i < speedPanel.children.length; i++) {
+    for (let i = 0; i < this.speed.length; i++) {
+      if (speedPanel.children[i].innerHTML === '1') {
+        speedPanel.children[i].className = 'panelActive'
+      } else {
+        speedPanel.children[i].className = ''
+      }
+
       speedPanel.children[i].addEventListener('click', () => {
         this.player.playbackRate = this.speed[i]
+        for (let j = 0; j < this.speed.length; j++){
+          if (this.player.playbackRate === this.speed[j]) {
+            speedPanel.children[j].className = 'panelActive'
+          } else {
+            speedPanel.children[j].className = ''
+          }
+        }
         speedPanel.style.cssText = 'display: none;'
       })
     }
@@ -598,13 +601,14 @@ export default class LoPlayer {
     console.log(volumeProgress)
     volumeLine.addEventListener('click', (e: MouseEvent) => {
       let position = e.offsetX
-      if ((position - volumeBar.offsetWidth) <= 0) {
+      console.log(position)
+      if (position <= 0) {
         position = 0
       } else if (position > (volumeLine.offsetWidth - volumeBar.offsetWidth)) {
         position = volumeLine.offsetWidth - volumeBar.offsetWidth
       }
       const volumeSize = Number((position / volumeLine.offsetWidth).toFixed(2))
-
+      console.log(position / volumeLine.offsetWidth)
       this.setVolume(volumeSize)
     })
   }

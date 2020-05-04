@@ -1,7 +1,7 @@
 /*
  * @Author: last order
  * @Date: 2019-08-10 21:12:49
- * @LastEditTime: 2020-05-02 14:21:04
+ * @LastEditTime: 2020-05-04 13:55:29
  */
 export const Format = (time: number): string => {
   const date = {
@@ -15,7 +15,7 @@ export const Format = (time: number): string => {
   const Second = second < 10 ? '0' + second : second
   const Minute = minute < 10 ? '0' + minute : minute
 
-  return Hour + ':' + Minute + ':' + Second
+  return time > 3600 ? `${Hour}:${Minute}:${Second}` : `${Minute}:${Second}`
 }
 
 export const base64ToBlob = (dataurl: string) => {

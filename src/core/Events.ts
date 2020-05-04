@@ -1,7 +1,7 @@
 /*
  * @Author: last order
  * @Date: 2020-02-11 13:05:39
- * @LastEditTime: 2020-05-02 14:39:23
+ * @LastEditTime: 2020-05-04 16:27:36
  */
 
 interface EventsInterface {
@@ -33,6 +33,7 @@ export default class Events {
     if (!this.events[eventName]) {
       this.events[eventName] = [fn, ...this.events[eventName]]
     }
+    // this.events[eventName]
   }
 
   // 触发事件
@@ -55,8 +56,8 @@ export default class Events {
       const index = this.events[eventName].findIndex(item => fn === item)
       this.events[eventName].splice(index, 1)
     } else {
-      Reflect.deleteProperty(this.events, eventName)
-      // delete this.events[eventName]
+      // Reflect.deleteProperty(this.events, eventName)
+      delete this.events[eventName]
     }
   }
 }
