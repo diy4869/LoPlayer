@@ -6,6 +6,15 @@
 # LoPlayer
 一个简易的播放器，支持vue、react等
 
+## 安装
+```
+npm install loplayer -S
+or
+yarn add loplayer
+```
+
+## 例子
+
 ![不带切换的例子](https://github.com/diy4869/LoPlayer/blob/master/example/01.png)
 ![带切换的例子](https://github.com/diy4869/LoPlayer/blob/master/example/02.png)
 ## API文档
