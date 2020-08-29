@@ -16,7 +16,7 @@ module.exports = {
   },
   output: {
     path: path.join(__dirname, '../dist'),
-    filename: '[name].[hash:8].js',
+    filename: 'index.js',
     library: 'LoPlayer',
     libraryTarget: 'umd',
     libraryExport: 'default'
