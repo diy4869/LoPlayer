@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development webpack-dev-server --config webpack/webpack.dev.config.js --progress --open --colors",
     "build": "cross-env NODE_ENV=production webpack --config webpack/webpack.prod.config.js",
-    "lint": "eslint ./src",
+    "lint": "eslint .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "last order",
