@@ -1,10 +1,11 @@
 import '../assets/css/player.scss'
 import Template from '@/core/template'
 import Events from '@/core/events'
-import { Format, base64ToBlob } from '@/utils/utils'
+import { Format } from '@/utils/utils'
 import Hls from 'hls.js'
 import dashjs from 'dashjs'
-import LoPlayerConfig, { LoPlayerOptions } from '@/config/index'
+import LoPlayerConfig from '@/config/index'
+import FullScreen from '@/plugins/fullscreen'
 
 type PanelOptions = {
   [propName in number | string]: any
@@ -25,6 +26,7 @@ export default class LoPlayer {
   switch: boolean
   getEl: any
   events?: Events
+  fullScreen: boolean
 
   constructor (el: HTMLElement, options: LoPlayerOptions = LoPlayerConfig) {
     this.el = el
@@ -40,11 +42,12 @@ export default class LoPlayer {
     this.getEl = new Template({
       container: this.el,
       switch: this.switch,
-      screenShot: this.options.screenShot,
       speed: this.speed,
       currentIndex: this.currentIndex,
       currentTime: Format(this.currentTime)
     })
+    this.fullScreen = false
+    // this.plugins = new Plugins([FullScreen], this)
     this.init()
   }
 
@@ -99,7 +102,7 @@ export default class LoPlayer {
     }
   }
   bindEvent () {
-    const { playBtn, volumeBtn, fullScreen, screenshot, logo } = this.getEl
+    const { playBtn, volumeBtn, logo, fullScreen } = this.getEl
     playBtn.addEventListener('click', () => {
       this.toggle()
     })
@@ -110,14 +113,8 @@ export default class LoPlayer {
       this.muted()
     })
     fullScreen.addEventListener('click', () => {
-      this.fullScreen()
+      FullScreen(this)
     })
-    if (screenshot) {
-      screenshot.addEventListener('click', () => {
-        console.log(1)
-        this.screenshot()
-      })
-    }
   }
 
   // 右键
@@ -133,25 +130,6 @@ export default class LoPlayer {
     }
   }
 
-  screenshot (filename: string = 'download') {
-    const canvas = document.createElement('canvas')
-    canvas.width = this.player.offsetWidth
-    canvas.height = this.player.offsetHeight
-    const link = document.createElement('a')
-    const ctx = canvas.getContext('2d')
-    // canvas.style.display = 'none'
-    document.body.appendChild(canvas)
-    ctx!.drawImage(this.player, 0, 0, canvas.width, canvas.height)
-    const res = canvas.toDataURL('image/png')
-    const blob = base64ToBlob(res)
-    const blobURL = URL.createObjectURL(blob)
-    link.setAttribute('href', blobURL)
-    link.setAttribute('download', filename)
-    document.body.appendChild(link)
-
-    link.click()
-    // return blobURL
-  }
 
   error () {
     // setInterval(() => {
@@ -258,9 +236,6 @@ export default class LoPlayer {
           break
         case 32:
           this.toggle()
-          break
-        case 70:
-          this.fullScreen()
           break
         case 77:
           this.muted()
@@ -479,50 +454,6 @@ export default class LoPlayer {
     })
   }
 
-  // 进入全屏
-  FullScreen () {
-    const { playerBox } = this.getEl
-    const el = playerBox
-    if (el.requestFullscreen) {
-      el.requestFullscreen()
-    } else if (el.mozRequestFullScreen) {
-      el.mozRequestFullScreen()
-    } else if (el.webkitRequestFullScreen) {
-      el.webkitRequestFullScreen()
-    }
-  }
-
-  // 退出全屏
-  ExitFullscreen () {
-    document.exitFullscreen()
-
-    // const doc = document as Document
-    // if (doc.exitFullscreen) {
-    //   doc.exitFullscreen()
-    // } else if (doc.mozCancelFullScreen) {
-    //   doc.mozCancelFullScreen()
-    // } else if (doc.webkitCancelFullScreen) {
-    //   doc.webkitCancelFullScreen()
-    // }
-  }
-
-  // 全屏
-  fullScreen () {
-    const { fullScreen } = this.getEl
-    let fullScreenIcon = ''
-
-    this.options.fullScreen = !this.options.fullScreen
-
-    if (this.options.fullScreen) {
-      this.FullScreen()
-      fullScreenIcon = 'icon-fullscreen-exit'
-    } else {
-      this.ExitFullscreen()
-      fullScreenIcon = 'icon-fullscreen'
-    }
-
-    fullScreen.classList.replace(fullScreen.classList[fullScreen.classList.length - 1], fullScreenIcon)
-  }
 
   // 设置播放速度
   setSpeed () {

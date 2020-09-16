@@ -10,6 +10,7 @@
       "baseUrl": ".",
       "module": "esnext",
       "target": "es5",
+      "declaration": true,
       "lib": ["dom", "esnext"],
       "strictNullChecks": true,
       "esModuleInterop": true,

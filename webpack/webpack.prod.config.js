@@ -6,7 +6,7 @@
 const path = require('path')
 // const glob = require('glob')
 // const env = require('./env')
-const merge = require('webpack-merge')
+const { merge } = require('webpack-merge')
 const webpackBaseConfig = require('./webpack.base.config')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const OptimizationCssAssetsPlugin = require('optimize-css-assets-webpack-plugin')
